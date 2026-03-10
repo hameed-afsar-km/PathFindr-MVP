@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
 import { adaptRoadmap } from '@/lib/mockAI';
-import { Lock, CheckCircle2, Circle, ExternalLink, ChevronDown, ChevronRight, Search, Calendar, RefreshCw, Briefcase, Filter, ArrowRightLeft, Sparkles, BrainCircuit } from 'lucide-react';
+import { Lock, CheckCircle2, Circle, ExternalLink, ChevronDown, ChevronRight, Search, Calendar, RefreshCw, Briefcase, Filter, ArrowRightLeft, Sparkles, BrainCircuit, GraduationCap, Building2, BadgeCheck } from 'lucide-react';
 import { GlowingEffect } from './ui/glowing-effect';
 
 export default function RoadmapView() {
@@ -401,6 +401,96 @@ export default function RoadmapView() {
         {filteredPhases.length === 0 && (
           <div className="text-center py-12 text-muted-foreground">No tasks matched your search.</div>
         )}
+      </div>
+
+      {/* Certificates & Internships Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12 pb-20">
+        {/* Certificates */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="glass-strong rounded-[2rem] p-6 border border-border/50 relative overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 p-8 opacity-5">
+            <GraduationCap className="w-24 h-24 text-primary" />
+          </div>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 bg-primary/10 rounded-xl">
+              <BadgeCheck className="w-5 h-5 text-primary" />
+            </div>
+            <h3 className="text-xl font-bold text-foreground">Top Certificates</h3>
+          </div>
+          <div className="space-y-4">
+            {activeCareer.certificates?.map((cert) => (
+              <a
+                key={cert.id}
+                href={cert.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block group cursor-pointer"
+              >
+                <div className="glass p-4 rounded-2xl hover:bg-primary/5 hover:border-primary/30 transition-all border border-transparent">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-bold text-foreground group-hover:text-primary transition-colors">{cert.title}</h4>
+                    <span className="text-[10px] font-black uppercase tracking-widest bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                      {cert.level}
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground flex items-center gap-2">
+                    <Building2 className="w-3.5 h-3.5" /> {cert.provider}
+                  </p>
+                  <div className="mt-3 flex items-center gap-1 text-xs text-primary font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                    View Course <ExternalLink className="w-3 h-3" />
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Internships */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
+          className="glass-strong rounded-[2rem] p-6 border border-border/50 relative overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 p-8 opacity-5">
+            <Briefcase className="w-24 h-24 text-primary" />
+          </div>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 bg-primary/10 rounded-xl">
+              <Building2 className="w-5 h-5 text-primary" />
+            </div>
+            <h3 className="text-xl font-bold text-foreground">Recommended Internships</h3>
+          </div>
+          <div className="space-y-4">
+            {activeCareer.internships?.map((intern) => (
+              <a
+                key={intern.id}
+                href={intern.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block group cursor-pointer"
+              >
+                <div className="glass p-4 rounded-2xl hover:bg-primary/5 hover:border-primary/30 transition-all border border-transparent">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-bold text-foreground group-hover:text-primary transition-colors">{intern.title}</h4>
+                    <span className="text-[10px] font-black uppercase tracking-widest bg-accent/10 text-accent px-2 py-0.5 rounded-full">
+                      {intern.type}
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground flex items-center gap-2">
+                    <Building2 className="w-3.5 h-3.5" /> {intern.company}
+                  </p>
+                  <div className="mt-3 flex items-center gap-1 text-xs text-primary font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                    Apply Now <ExternalLink className="w-3 h-3" />
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </motion.div>
       </div>
     </div>
   );

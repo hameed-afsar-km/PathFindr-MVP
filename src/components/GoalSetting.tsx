@@ -57,7 +57,7 @@ export default function GoalSetting() {
       }
       daysRemaining = Math.max(1, Math.ceil((targetDate.getTime() - Date.now()) / 86400000));
 
-      const phases = await generateRoadmap(careerId, daysRemaining, skillResult.level, goal);
+      const { phases, certificates, internships } = await generateRoadmap(careerId, daysRemaining, skillResult.level, goal);
 
       // Get career title from mockAI
       const careerTitles: Record<string, string> = {
@@ -88,6 +88,8 @@ export default function GoalSetting() {
         progress: 0,
         isActive: true,
         phases,
+        certificates,
+        internships,
       };
 
       addCareer(career);

@@ -1,66 +1,162 @@
 import { SurveyAnswer, CareerPath, Phase, Task, DailyChallenge } from '@/context/AppContext';
 import { askGemini } from './gemini';
 
-const CAREER_DATABASE: Record<string, { title: string; skills: string[]; phases: string[] }> = {
+const CAREER_DATABASE: Record<string, { title: string; skills: string[]; phases: string[], certificates: any[], internships: any[] }> = {
   'frontend-dev': {
     title: 'Frontend Developer',
     skills: ['HTML/CSS', 'JavaScript', 'React', 'TypeScript', 'UI/UX'],
     phases: ['HTML & CSS Foundations', 'JavaScript Mastery', 'React & Modern Frameworks', 'TypeScript & Testing', 'Portfolio & Job Prep'],
+    certificates: [
+      { id: 'c1', title: 'Meta Front-End Developer Professional Certificate', provider: 'Coursera', link: 'https://coursera.org/professional-certificates/meta-front-end-developer', level: 'beginner' },
+      { id: 'c2', title: 'Responsive Web Design', provider: 'freeCodeCamp', link: 'https://freecodecamp.org/learn/2022/responsive-web-design/', level: 'beginner' }
+    ],
+    internships: [
+      { id: 'i1', title: 'Front-end Engineering Intern', company: 'Google', link: 'https://www.google.com/about/careers/applications/jobs/results/?q=intern', type: 'hybrid' },
+      { id: 'i2', title: 'React Developer Internship', company: 'Meta', link: 'https://metacareers.com/v2/jobs/?q=intern', type: 'onsite' }
+    ]
   },
   'backend-dev': {
     title: 'Backend Developer',
     skills: ['Node.js', 'Databases', 'APIs', 'Security', 'DevOps'],
     phases: ['Programming Fundamentals', 'Server & APIs', 'Database Design', 'Security & Auth', 'Deployment & Scaling'],
+    certificates: [
+      { id: 'c1', title: 'Google IT Support Professional Certificate', provider: 'Coursera', link: 'https://coursera.org/professional-certificates/google-it-support', level: 'beginner' },
+      { id: 'c2', title: 'AWS Certified Cloud Practitioner', provider: 'AWS', link: 'https://aws.amazon.com/certification/certified-cloud-practitioner/', level: 'intermediate' }
+    ],
+    internships: [
+      { id: 'i1', title: 'Software Engineer Intern (Backend)', company: 'Amazon', link: 'https://www.amazon.jobs/en/job_categories/software-development', type: 'onsite' },
+      { id: 'i2', title: 'Backend Developer Intern', company: 'Microsoft', link: 'https://careers.microsoft.com/students/us/en/search-results?category=Software%20Engineering', type: 'hybrid' }
+    ]
   },
   'data-scientist': {
     title: 'Data Scientist',
     skills: ['Python', 'Statistics', 'ML', 'Data Viz', 'SQL'],
     phases: ['Python & Math Foundations', 'Statistics & Probability', 'Machine Learning Basics', 'Deep Learning & NLP', 'Real-World Projects'],
+    certificates: [
+      { id: 'c1', title: 'IBM Data Science Professional Certificate', provider: 'Coursera', link: 'https://coursera.org/professional-certificates/ibm-data-science', level: 'beginner' },
+      { id: 'c2', title: 'Google Data Analytics Professional Certificate', provider: 'Coursera', link: 'https://coursera.org/professional-certificates/google-data-analytics', level: 'beginner' }
+    ],
+    internships: [
+      { id: 'i1', title: 'Data Scientist Intern', company: 'Tesla', link: 'https://www.tesla.com/careers/search/?query=intern', type: 'onsite' },
+      { id: 'i2', title: 'Machine Learning Research Intern', company: 'OpenAI', link: 'https://openai.com/careers', type: 'hybrid' }
+    ]
   },
   'ui-ux-designer': {
     title: 'UI/UX Designer',
     skills: ['Figma', 'User Research', 'Prototyping', 'Design Systems', 'Accessibility'],
     phases: ['Design Principles', 'User Research Methods', 'Wireframing & Prototyping', 'Visual Design & Systems', 'Portfolio Building'],
+    certificates: [
+      { id: 'c1', title: 'Google UX Design Professional Certificate', provider: 'Coursera', link: 'https://coursera.org/professional-certificates/google-ux-design', level: 'beginner' },
+      { id: 'c2', title: 'UI/UX Design Specialization', provider: 'CalArts', link: 'https://www.coursera.org/specializations/ui-ux-design', level: 'intermediate' }
+    ],
+    internships: [
+      { id: 'i1', title: 'Product Design Intern', company: 'Airbnb', link: 'https://careers.airbnb.com/university/', type: 'hybrid' },
+      { id: 'i2', title: 'UX Research Intern', company: 'Spotify', link: 'https://www.lifeatspotify.com/students', type: 'onsite' }
+    ]
   },
   'devops-engineer': {
     title: 'DevOps Engineer',
     skills: ['Linux', 'Docker', 'CI/CD', 'Cloud', 'Monitoring'],
     phases: ['Linux & Networking', 'Containers & Docker', 'CI/CD Pipelines', 'Cloud Infrastructure', 'Monitoring & SRE'],
+    certificates: [
+      { id: 'c1', title: 'Certified Kubernetes Administrator (CKA)', provider: 'CNCF', link: 'https://training.linuxfoundation.org/certification/certified-kubernetes-administrator-cka/', level: 'advanced' },
+      { id: 'c2', title: 'AWS Certified DevOps Engineer', provider: 'AWS', link: 'https://aws.amazon.com/certification/certified-devops-engineer-professional/', level: 'advanced' }
+    ],
+    internships: [
+      { id: 'i1', title: 'SRE Intern', company: 'Cloudflare', link: 'https://www.cloudflare.com/careers/', type: 'remote' },
+      { id: 'i2', title: 'DevOps Intern', company: 'Red Hat', link: 'https://www.redhat.com/en/jobs/students-and-graduates', type: 'hybrid' }
+    ]
   },
   'mobile-dev': {
     title: 'Mobile App Developer',
     skills: ['React Native', 'Flutter', 'iOS', 'Android', 'App Design'],
     phases: ['Mobile Fundamentals', 'React Native Basics', 'Navigation & State', 'Native Features', 'Publishing & Marketing'],
+    certificates: [
+      { id: 'c1', title: 'iOS App Development Specialization', provider: 'Coursera', link: 'https://www.coursera.org/specializations/app-development', level: 'intermediate' },
+      { id: 'c2', title: 'Android Developer Nanodegree', provider: 'Udacity', link: 'https://www.udacity.com/course/android-kotlin-developer-nanodegree--nd940', level: 'intermediate' }
+    ],
+    internships: [
+      { id: 'i1', title: 'Mobile Engineering Intern', company: 'Uber', link: 'https://www.uber.com/us/en/careers/university/', type: 'onsite' },
+      { id: 'i2', title: 'iOS/Android Intern', company: 'Snapchat', link: 'https://www.snap.com/en-US/jobs', type: 'hybrid' }
+    ]
   },
   'cybersecurity': {
     title: 'Cybersecurity Analyst',
     skills: ['Networking', 'Ethical Hacking', 'Forensics', 'Compliance', 'Incident Response'],
     phases: ['Network Security Basics', 'Ethical Hacking Tools', 'Vulnerability Assessment', 'Incident Response', 'Compliance & Governance'],
+    certificates: [
+      { id: 'c1', title: 'CompTIA Security+', provider: 'CompTIA', link: 'https://www.comptia.org/certifications/security', level: 'beginner' },
+      { id: 'c2', title: 'Certified Ethical Hacker (CEH)', provider: 'EC-Council', link: 'https://www.eccouncil.org/programs/certified-ethical-hacker-ceh/', level: 'intermediate' }
+    ],
+    internships: [
+      { id: 'i1', title: 'Cybersecurity Intern', company: 'CrowdStrike', link: 'https://www.crowdstrike.com/careers/internships/', type: 'remote' },
+      { id: 'i2', title: 'Security Analyst Intern', company: 'Palo Alto Networks', link: 'https://www.paloaltonetworks.com/about-us/careers/early-talent', type: 'hybrid' }
+    ]
   },
   'product-manager': {
     title: 'Product Manager',
     skills: ['Strategy', 'Analytics', 'Roadmapping', 'User Stories', 'Agile'],
     phases: ['Product Thinking', 'Market Research', 'Agile & Scrum', 'Data-Driven Decisions', 'Leadership & Stakeholders'],
+    certificates: [
+      { id: 'c1', title: 'Product Management First Steps', provider: 'LinkedIn Learning', link: 'https://www.linkedin.com/learning/product-management-first-steps/', level: 'beginner' },
+      { id: 'c2', title: 'Pragmatic Product Management', provider: 'Pragmatic Institute', link: 'https://www.pragmaticinstitute.com/product/', level: 'intermediate' }
+    ],
+    internships: [
+      { id: 'i1', title: 'Associate Product Manager Intern', company: 'Salesforce', link: 'https://www.salesforce.com/company/careers/university-recruiting/', type: 'hybrid' },
+      { id: 'i2', title: 'Product Management Intern', company: 'Netflix', link: 'https://jobs.netflix.com/', type: 'onsite' }
+    ]
   },
   'ai-ml-engineer': {
     title: 'AI/ML Engineer',
     skills: ['Python', 'TensorFlow', 'NLP', 'Computer Vision', 'MLOps'],
     phases: ['Python & Linear Algebra', 'Classical ML Algorithms', 'Deep Learning Frameworks', 'NLP & Computer Vision', 'MLOps & Deployment'],
+    certificates: [
+      { id: 'c1', title: 'Deep Learning Specialization', provider: 'DeepLearning.AI', link: 'https://www.deeplearning.ai/program/deep-learning-specialization/', level: 'advanced' },
+      { id: 'c2', title: 'Machine Learning Engineering for Production (MLOps)', provider: 'DeepLearning.AI', link: 'https://www.deeplearning.ai/program/machine-learning-engineering-for-production-mlops/', level: 'advanced' }
+    ],
+    internships: [
+      { id: 'i1', title: 'AI Research Intern', company: 'DeepMind', link: 'https://deepmind.google/careers/', type: 'hybrid' },
+      { id: 'i2', title: 'ML Engineering Intern', company: 'NVIDIA', link: 'https://www.nvidia.com/en-us/about-nvidia/careers/university-recruiting/', type: 'onsite' }
+    ]
   },
   'cloud-architect': {
     title: 'Cloud Architect',
     skills: ['AWS', 'Azure', 'Terraform', 'Microservices', 'Cost Optimization'],
     phases: ['Cloud Fundamentals', 'AWS Core Services', 'Infrastructure as Code', 'Microservices Architecture', 'Cost & Performance'],
+    certificates: [
+      { id: 'c1', title: 'AWS Certified Solutions Architect – Associate', provider: 'AWS', link: 'https://aws.amazon.com/certification/certified-solutions-architect-associate/', level: 'intermediate' },
+      { id: 'c2', title: 'Google Professional Cloud Architect', provider: 'Google Cloud', link: 'https://cloud.google.com/certification/cloud-architect', level: 'advanced' }
+    ],
+    internships: [
+      { id: 'i1', title: 'Cloud Solutions Intern', company: 'Oracle', link: 'https://www.oracle.com/corporate/careers/students-graduates/', type: 'hybrid' },
+      { id: 'i2', title: 'Infrastructure Intern', company: 'DigitalOcean', link: 'https://www.digitalocean.com/careers', type: 'remote' }
+    ]
   },
   'blockchain-dev': {
     title: 'Blockchain Developer',
     skills: ['Solidity', 'Smart Contracts', 'DeFi', 'Web3', 'Cryptography'],
     phases: ['Blockchain Basics', 'Solidity & Smart Contracts', 'DeFi Protocols', 'Web3 Frontend', 'Security Auditing'],
+    certificates: [
+      { id: 'c1', title: 'Blockchain Specialization', provider: 'Coursera', link: 'https://www.coursera.org/specializations/blockchain', level: 'intermediate' },
+      { id: 'c2', title: 'Certified Blockchain Developer', provider: 'Blockchain Council', link: 'https://www.blockchain-council.org/certifications/certified-blockchain-developer/', level: 'advanced' }
+    ],
+    internships: [
+      { id: 'i1', title: 'Blockchain Developer Intern', company: 'Coinbase', link: 'https://www.coinbase.com/careers', type: 'remote' },
+      { id: 'i2', title: 'Smart Contract Intern', company: 'Chainlink Labs', link: 'https://chainlinklabs.com/careers', type: 'remote' }
+    ]
   },
   'game-dev': {
     title: 'Game Developer',
     skills: ['Unity', 'C#', 'Game Design', '3D Modeling', 'Physics'],
     phases: ['Game Design Principles', 'Unity Fundamentals', 'C# for Games', '3D & Physics', 'Publishing Games'],
+    certificates: [
+      { id: 'c1', title: 'Unity Certified User: Programmer', provider: 'Unity', link: 'https://unity.com/products/unity-certifications/user-programmer', level: 'beginner' },
+      { id: 'c2', title: 'Game Design Specialization', provider: 'Coursera', link: 'https://www.coursera.org/specializations/game-design', level: 'beginner' }
+    ],
+    internships: [
+      { id: 'i1', title: 'Game Design Intern', company: 'Electronic Arts (EA)', link: 'https://www.ea.com/careers/students', type: 'hybrid' },
+      { id: 'i2', title: 'Unity Developer Intern', company: 'Ubisoft', link: 'https://www.ubisoft.com/en-us/company/careers/students', type: 'onsite' }
+    ]
   },
 };
 
@@ -219,9 +315,15 @@ export function calculateSkillScore(lastCorrectIndex: number, total: number): { 
   return { score, level: 'advanced' };
 }
 
-export async function generateRoadmap(careerId: string, daysRemaining: number, level: string, goal: string): Promise<Phase[]> {
+export type RoadmapResult = {
+  phases: Phase[];
+  certificates: any[];
+  internships: any[];
+}
+
+export async function generateRoadmap(careerId: string, daysRemaining: number, level: string, goal: string): Promise<RoadmapResult> {
   const career = CAREER_DATABASE[careerId];
-  if (!career) return [];
+  if (!career) return { phases: [], certificates: [], internships: [] };
 
   const prompt = `
     Generate a 100% custom, non-predefined learning roadmap for ${career.title} specifically for a ${level} level student aiming for a ${goal} outcome.
@@ -235,14 +337,24 @@ export async function generateRoadmap(careerId: string, daysRemaining: number, l
     
     CRITICAL: Each task description must be unique and pedagogical. 
     YouTube links must be relevant search queries.
-    Return ONLY valid JSON: [{ "id": "phase-0", "title": "...", "tasks": [{ "id": "t1", "day": 1, "title": "...", "description": "...", "objective": "...", "youtubeLink": "...", "completed": false, "phaseId": "phase-0", "isProject": false }] }]
+    Return ONLY valid JSON: { "phases": [{ "id": "phase-0", "title": "...", "tasks": [{ "id": "t1", "day": 1, "title": "...", "description": "...", "objective": "...", "youtubeLink": "...", "completed": false, "phaseId": "phase-0", "isProject": false }] }] }
   `;
 
   const geminiResult = await askGemini(prompt);
-  if (geminiResult && Array.isArray(geminiResult)) return geminiResult;
+  if (geminiResult && geminiResult.phases) {
+    return {
+      phases: geminiResult.phases,
+      certificates: (career as any).certificates || [],
+      internships: (career as any).internships || []
+    };
+  }
 
   // Local fallback
-  return localGenerateRoadmap(careerId, daysRemaining);
+  return {
+    phases: localGenerateRoadmap(careerId, daysRemaining),
+    certificates: (career as any).certificates || [],
+    internships: (career as any).internships || []
+  };
 }
 
 export async function adaptRoadmap(careerId: string, daysRemaining: number, currentPhases: any[], strategy: string): Promise<any[]> {

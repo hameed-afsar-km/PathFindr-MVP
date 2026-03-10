@@ -19,6 +19,24 @@ export interface CareerPath {
   progress: number;
   isActive: boolean;
   phases: Phase[];
+  certificates: Certificate[];
+  internships: Internship[];
+}
+
+export interface Certificate {
+  id: string;
+  title: string;
+  provider: string;
+  link: string;
+  level: 'beginner' | 'intermediate' | 'advanced';
+}
+
+export interface Internship {
+  id: string;
+  title: string;
+  company: string;
+  link: string;
+  type: 'remote' | 'onsite' | 'hybrid';
 }
 
 export interface Phase {
@@ -36,6 +54,7 @@ export interface Task {
   youtubeLink: string;
   completed: boolean;
   phaseId: string;
+  isProject?: boolean;
 }
 
 export interface DailyChallenge {
