@@ -8,19 +8,24 @@ import SkillAssessment from '@/components/SkillAssessment';
 import GoalSetting from '@/components/GoalSetting';
 import HomeScreen from '@/components/HomeScreen';
 
+import { AnimatedBackground } from '@/components/ui/AnimatedBackground';
+
 function AppContent() {
   const { screen } = useApp();
 
   return (
-    <AnimatePresence mode="wait">
-      {screen === 'splash' && <SplashScreen key="splash" />}
-      {screen === 'auth' && <AuthScreen key="auth" />}
-      {screen === 'onboarding' && <OnboardingSurvey key="onboarding" />}
-      {screen === 'career-match' && <CareerMatcher key="career-match" />}
-      {screen === 'skill-assessment' && <SkillAssessment key="skill-assessment" />}
-      {screen === 'goal-setting' && <GoalSetting key="goal-setting" />}
-      {screen === 'home' && <HomeScreen key="home" />}
-    </AnimatePresence>
+    <div className="relative min-h-screen">
+      <AnimatedBackground />
+      <AnimatePresence mode="wait">
+        {screen === 'splash' && <SplashScreen key="splash" />}
+        {screen === 'auth' && <AuthScreen key="auth" />}
+        {screen === 'onboarding' && <OnboardingSurvey key="onboarding" />}
+        {screen === 'career-match' && <CareerMatcher key="career-match" />}
+        {screen === 'skill-assessment' && <SkillAssessment key="skill-assessment" />}
+        {screen === 'goal-setting' && <GoalSetting key="goal-setting" />}
+        {screen === 'home' && <HomeScreen key="home" />}
+      </AnimatePresence>
+    </div>
   );
 }
 
