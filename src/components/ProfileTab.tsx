@@ -20,7 +20,11 @@ export default function ProfileTab() {
 
       <div className="space-y-6">
         {/* User Info Section */}
-        <section className="relative">
+        <motion.section
+          className="relative"
+          whileHover={{ y: -4, scale: 1.005 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        >
           <div className="relative rounded-[2rem] border border-border/50 p-2 md:p-3">
             <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={3} />
             <div className="relative z-10 p-6 md:p-8 rounded-[1.75rem] bg-background overflow-hidden">
@@ -67,10 +71,14 @@ export default function ProfileTab() {
               </div>
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* Security Section */}
-        <section className="relative">
+        <motion.section
+          className="relative"
+          whileHover={{ y: -4, scale: 1.005 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        >
           <div className="relative rounded-[2rem] border border-border/50 p-2 md:p-3">
             <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={3} />
             <div className="relative z-10 p-6 md:p-8 rounded-[1.75rem] bg-background overflow-hidden">
@@ -113,10 +121,14 @@ export default function ProfileTab() {
               </div>
             </div>
           </div>
-        </section>
+        </motion.section>
 
         {/* Danger Zone */}
-        <section className="relative">
+        <motion.section
+          className="relative"
+          whileHover={{ y: -4, scale: 1.005 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        >
           <div className="relative rounded-[2rem] border border-destructive/20 p-2 md:p-3">
             <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={3} variant="white" />
             <div className="relative z-10 p-6 md:p-8 rounded-[1.75rem] bg-background overflow-hidden">
@@ -195,7 +207,7 @@ export default function ProfileTab() {
               </p>
             </div>
           </div>
-        </section>
+        </motion.section>
       </div>
     </div>
   );

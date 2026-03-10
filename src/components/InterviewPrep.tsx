@@ -36,9 +36,11 @@ export default function InterviewPrep() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
             >
-              <button
+              <motion.button
                 onClick={() => startPrep(c)}
-                className="group relative w-full h-40 rounded-[2rem] border border-border/50 p-1 transition-all hover:scale-[1.02]"
+                whileHover={{ y: -4, scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className="group relative w-full h-40 rounded-[2rem] border border-border/50 p-1 transition-all"
               >
                 <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={3} />
                 <div className="relative h-full w-full rounded-[1.75rem] bg-background flex flex-col items-center justify-center gap-3 overflow-hidden group-hover:bg-secondary/20 transition-colors">
@@ -48,7 +50,7 @@ export default function InterviewPrep() {
                   <span className="text-foreground font-bold text-center tracking-tight">{c}</span>
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-8 h-1 bg-border/20 rounded-full group-hover:w-16 group-hover:bg-accent/40 transition-all duration-500" />
                 </div>
-              </button>
+              </motion.button>
             </motion.div>
           ))}
         </div>
@@ -140,15 +142,17 @@ export default function InterviewPrep() {
                   }
 
                   return (
-                    <button
+                    <motion.button
                       key={i}
+                      whileHover={{ x: 8, scale: 1.01 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
                       onClick={() => answered === null && setAnswered(i)}
                       disabled={answered !== null}
                       className={`group relative flex items-center gap-5 text-left p-5 rounded-2xl text-sm font-semibold text-foreground transition-all border ${statusStyle}`}
                     >
                       {icon}
                       <span className="flex-1 leading-snug">{opt}</span>
-                    </button>
+                    </motion.button>
                   );
                 })}
               </div>

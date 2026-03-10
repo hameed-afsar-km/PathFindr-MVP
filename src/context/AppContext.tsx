@@ -148,7 +148,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const setSurveyAnswers = useCallback((a: SurveyAnswer[]) => setState(s => ({ ...s, surveyAnswers: a })), []);
 
   const addCareer = useCallback((c: CareerPath) => setState(s => {
-    const careers = [...s.careers.map(x => ({ ...x, isActive: false })), { ...c, isActive: true }];
+    const existingIdx = s.careers.findIndex(x => x.id === c.id);
+    let careers = s.careers.map(x => ({ ...x, isActive: false }));
+
+    if (existingIdx !== -1) {
+      // Update existing
+      careers[existingIdx] = { ...c, isActive: true };
+    } else {
+      // Add new
+      careers = [...careers, { ...c, isActive: true }];
+    }
+
     return { ...s, careers, activeCareer: c };
   }), []);
 

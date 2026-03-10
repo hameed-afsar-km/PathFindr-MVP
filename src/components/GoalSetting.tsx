@@ -125,10 +125,12 @@ export default function GoalSetting() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {statuses.map((s, i) => (
-                    <button
+                    <motion.button
                       key={s}
                       onClick={() => handleStatusSelect(s)}
-                      className="group relative h-28 rounded-3xl border border-border/50 p-1 transition-all hover:scale-[1.02] text-left"
+                      whileHover={{ y: -4, scale: 1.02 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                      className="group relative h-28 rounded-3xl border border-border/50 p-1 transition-all text-left"
                     >
                       <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={3} />
                       <div className="relative h-full w-full rounded-2xl bg-background flex items-center px-6 gap-4 overflow-hidden group-hover:bg-secondary/20 transition-colors">
@@ -137,7 +139,7 @@ export default function GoalSetting() {
                         </div>
                         <span className="text-foreground font-black tracking-tight">{s}</span>
                       </div>
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               </motion.div>

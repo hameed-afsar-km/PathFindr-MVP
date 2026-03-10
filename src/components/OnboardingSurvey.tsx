@@ -103,8 +103,9 @@ export default function OnboardingSurvey() {
                         key={i}
                         onClick={() => handleAnswer(opt)}
                         className="w-full text-left glass px-6 py-4 rounded-xl text-foreground hover:border-primary/50 hover:glow-primary transition-all duration-200"
-                        whileHover={{ scale: 1.01, x: 4 }}
+                        whileHover={{ scale: 1.01, x: 8 }}
                         whileTap={{ scale: 0.99 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 10 }}
                       >
                         <span className="text-primary font-mono mr-3 text-sm">{String.fromCharCode(65 + i)}</span>
                         {opt}

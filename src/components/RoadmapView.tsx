@@ -265,7 +265,14 @@ export default function RoadmapView() {
           const isPhaseComplete = phaseTasksCompleted === phase.tasks.length;
 
           return (
-            <motion.div key={phase.id} className="glass rounded-2xl overflow-hidden mb-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: pi * 0.05 }}>
+            <motion.div
+              key={phase.id}
+              className="glass rounded-2xl overflow-hidden mb-4"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: pi * 0.05 }}
+              whileHover={{ y: -2, scale: 1.002 }}
+            >
               <button
                 onClick={() => setExpandedPhase(isExpanded ? null : phase.id)}
                 className={`w-full flex items-center justify-between p-5 transition-colors ${isExpanded ? 'bg-background/40' : 'hover:bg-background/20'}`}
@@ -299,39 +306,51 @@ export default function RoadmapView() {
 
               <AnimatePresence>
                 {isExpanded && (
-                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                    <div className="mt-4 space-y-3 border-t border-border pt-4">
-                      {phase.tasks.map((task, ti) => {
-                        const globalIdx = allTasks.findIndex(t => t.id === task.id);
-                        const isLocked = globalIdx > firstIncompleteIdx && !task.completed;
-                        const isNext = globalIdx === firstIncompleteIdx;
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="p-5 pt-0 space-y-3">
+                      <div className="border-t border-border/40 pt-5 space-y-3">
+                        {phase.tasks.map((task, ti) => {
+                          const globalIdx = allTasks.findIndex(t => t.id === task.id);
+                          const isLocked = globalIdx > firstIncompleteIdx && !task.completed;
+                          const isNext = globalIdx === firstIncompleteIdx;
 
-                        return (
-                          <div key={task.id} className={`flex items-start gap-4 p-4 rounded-xl transition-all ${task.completed ? 'opacity-60 bg-secondary/30' : isLocked ? 'opacity-40 bg-secondary/10' : isNext ? 'bg-primary/5 border border-primary/20 shadow-[0_0_15px_rgba(var(--primary),0.1)]' : 'glass'}`}>
-                            <button
-                              onClick={() => !isLocked && !task.completed && handleTaskComplete(task.id, ti === phase.tasks.length - 1)}
-                              disabled={isLocked || task.completed}
-                              className="mt-1 shrink-0"
+                          return (
+                            <motion.div
+                              key={task.id}
+                              whileHover={!isLocked ? { x: 6, scale: 1.01 } : {}}
+                              transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                              className={`flex items-start gap-4 p-4 rounded-xl transition-all ${task.completed ? 'opacity-60 bg-secondary/30' : isLocked ? 'opacity-40 bg-secondary/10' : isNext ? 'bg-primary/5 border border-primary/20 shadow-[0_0_15px_rgba(var(--primary),0.1)]' : 'glass'}`}
                             >
-                              {task.completed ? <CheckCircle2 className="w-6 h-6 text-success" /> : isLocked ? <Lock className="w-5 h-5 text-muted-foreground ml-0.5" /> : <Circle className="w-6 h-6 text-primary hover:text-primary/80 transition-colors" />}
-                            </button>
-                            <div className="flex-1 min-w-0">
-                              <h4 className={`text-base font-semibold ${task.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
-                                {task.title}
-                              </h4>
-                              <p className="text-sm text-muted-foreground mt-1 mb-2 leading-relaxed">{task.description}</p>
-                              <div className="bg-secondary/50 rounded-lg p-3 text-xs mb-3 border border-border/50">
-                                <strong className="text-foreground">Objective:</strong> {task.objective}
+                              <button
+                                onClick={() => !isLocked && !task.completed && handleTaskComplete(task.id, ti === phase.tasks.length - 1)}
+                                disabled={isLocked || task.completed}
+                                className="mt-1 shrink-0"
+                              >
+                                {task.completed ? <CheckCircle2 className="w-6 h-6 text-success" /> : isLocked ? <Lock className="w-5 h-5 text-muted-foreground ml-0.5" /> : <Circle className="w-6 h-6 text-primary hover:text-primary/80 transition-colors" />}
+                              </button>
+                              <div className="flex-1 min-w-0">
+                                <h4 className={`text-base font-semibold ${task.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                                  {task.title}
+                                </h4>
+                                <p className="text-sm text-muted-foreground mt-1 mb-2 leading-relaxed">{task.description}</p>
+                                <div className="bg-secondary/50 rounded-lg p-3 text-xs mb-3 border border-border/50">
+                                  <strong className="text-foreground">Objective:</strong> {task.objective}
+                                </div>
+                                {!isLocked && (
+                                  <a href={task.youtubeLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-accent font-medium hover:underline bg-accent/10 px-3 py-1.5 rounded-md">
+                                    <ExternalLink className="w-3 h-3" /> Learning Material (YT)
+                                  </a>
+                                )}
                               </div>
-                              {!isLocked && (
-                                <a href={task.youtubeLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-accent font-medium hover:underline bg-accent/10 px-3 py-1.5 rounded-md">
-                                  <ExternalLink className="w-3 h-3" /> Learning Material (YT)
-                                </a>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
+                            </motion.div>
+                          );
+                        })}
+                      </div>
                     </div>
                   </motion.div>
                 )}
