@@ -91,7 +91,7 @@ export default function NewsHeadline() {
     if (!activeCareer) return null;
 
     return (
-        <div className="bento-card relative overflow-hidden group">
+        <div className="p-6 md:p-10 relative overflow-hidden group">
             <div className="flex items-center justify-between mb-4 relative z-10">
                 <div className="flex items-center gap-2">
                     <div className="p-1.5 bg-primary/10 rounded-lg">

@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useApp, CareerPath } from '@/context/AppContext';
 import { getDateEstimates, generateRoadmap } from '@/lib/mockAI';
+import { GlowingEffect } from './ui/glowing-effect';
+import { Calendar, Target, UserCheck, Timer, ArrowLeft, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
 
 const statuses = ['Student', 'Working Professional', 'Career Switcher', 'Unemployed'];
 const goals = [
@@ -20,7 +22,6 @@ export default function GoalSetting() {
   const [, setStatus] = useState('');
   const [selectedGoal, setSelectedGoal] = useState('');
   const [customDate, setCustomDate] = useState('');
-  // use profile username
 
   const estimates = getDateEstimates(skillResult.level);
 
@@ -39,15 +40,7 @@ export default function GoalSetting() {
     if (customDate) setStep('custom-goal');
   };
 
-  const handleCustomFinish = () => {
-    if (customDate && selectedGoal) {
-      handleFinish(selectedGoal, customDate);
-    }
-  }
-
   const handleFinish = (goal: string, customDateStr: string) => {
-
-
     let targetDate: Date = customDateStr ? new Date(customDateStr) : new Date();
     let daysRemaining = 1;
 
@@ -89,7 +82,7 @@ export default function GoalSetting() {
       startDate: new Date().toISOString(),
       targetDate: targetDate.toISOString(),
       level: skillResult.level,
-      goal: selectedGoal as CareerPath['goal'],
+      goal: (goal || 'job-ready') as CareerPath['goal'],
       skillScore: skillResult.score,
       progress: 0,
       isActive: true,
@@ -102,111 +95,194 @@ export default function GoalSetting() {
 
   return (
     <motion.div
-      className="fixed inset-0 bg-background flex items-center justify-center p-6"
+      className="fixed inset-0 bg-background flex flex-col overflow-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
-      <div className="w-full max-w-xl">
-        {step === 'status' && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <h2 className="text-3xl font-bold text-foreground mb-2">What's your current status?</h2>
-            <p className="text-muted-foreground mb-8">This helps us calibrate your timeline.</p>
-            <div className="space-y-3">
-              {statuses.map(s => (
-                <motion.button
-                  key={s}
-                  onClick={() => handleStatusSelect(s)}
-                  className="w-full text-left glass px-6 py-4 rounded-xl text-foreground hover:border-primary/50 transition-all"
-                  whileHover={{ scale: 1.01, x: 4 }}
-                >
-                  {s}
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-        )}
+      {/* Background radial glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
 
-        {step === 'goal' && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <h2 className="text-3xl font-bold text-foreground mb-2">Choose your learning goal</h2>
-            <p className="text-muted-foreground mb-2">Your skill level: <span className="text-primary capitalize">{skillResult.level}</span></p>
-            <p className="text-muted-foreground text-sm mb-8">Estimated timelines are adjusted based on your assessment.</p>
-            <div className="space-y-3">
-              {goals.map(g => {
-                const estDate = g.key === 'job-ready' ? estimates.jobReady : estimates[g.key as keyof typeof estimates];
-                const days = estDate ? Math.max(1, Math.ceil((estDate.getTime() - Date.now()) / 86400000)) : 0;
-
-                return (
-                  <motion.button
-                    key={g.key}
-                    onClick={() => handleGoalSelect(g.key)}
-                    className={`w-full text-left glass relative overflow-hidden px-6 py-4 rounded-xl text-foreground hover:border-primary/50 transition-all ${selectedGoal === g.key ? 'border-primary glow-primary' : ''}`}
-                    whileHover={{ scale: 1.02, x: 4 }}
-                  >
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 relative z-10">
-                      <div>
-                        <div className="font-semibold text-lg">{g.label}</div>
-                        {g.key !== 'custom' && (
-                          <div className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
-                            <span className="bg-secondary px-2 py-0.5 rounded text-primary font-mono">{days} Days</span>
-                            <span>Target: {estDate?.toLocaleDateString() || ''}</span>
-                          </div>
-                        )}
-                      </div>
-                      {g.key !== 'custom' && (
-                        <div className="hidden md:block text-right">
-                          <span className="text-xs uppercase tracking-widest text-muted-foreground opacity-50">Estimated</span>
-                        </div>
-                      )}
+      <div className="flex-1 flex items-center justify-center p-6 relative z-10">
+        <div className="w-full max-w-2xl">
+          <AnimatePresence mode="wait">
+            {step === 'status' && (
+              <motion.div
+                key="status"
+                initial={{ opacity: 0, x: 40, filter: "blur(10px)" }}
+                animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, x: -40, filter: "blur(10px)" }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <div className="space-y-2 mb-8">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <UserCheck className="w-5 h-5 text-primary" />
                     </div>
-                    {selectedGoal === g.key && (
-                      <motion.div className="absolute inset-0 bg-primary/10 -z-0" layoutId="goalBg" />
-                    )}
-                  </motion.button>
-                );
-              })}
-            </div>
-            {selectedGoal === 'custom' && (
-              <motion.div className="mt-4 flex gap-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <input
-                  type="date"
-                  value={customDate}
-                  onChange={e => setCustomDate(e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
-                  className="flex-1 bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
-                <button onClick={handleCustomDateConfirm} className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold">
-                  Set →
+                    <h2 className="text-3xl md:text-4xl font-black text-foreground tracking-tighter">Your Background</h2>
+                  </div>
+                  <p className="text-muted-foreground font-medium">This helps us calibrate your trajectory for maximum throughput.</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {statuses.map((s, i) => (
+                    <button
+                      key={s}
+                      onClick={() => handleStatusSelect(s)}
+                      className="group relative h-28 rounded-3xl border border-border/50 p-1 transition-all hover:scale-[1.02] text-left"
+                    >
+                      <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={3} />
+                      <div className="relative h-full w-full rounded-2xl bg-background flex items-center px-6 gap-4 overflow-hidden group-hover:bg-secondary/20 transition-colors">
+                        <div className="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
+                          <span className="font-black text-sm">{i + 1}</span>
+                        </div>
+                        <span className="text-foreground font-black tracking-tight">{s}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {step === 'goal' && (
+              <motion.div
+                key="goal"
+                initial={{ opacity: 0, x: 40, filter: "blur(10px)" }}
+                animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, x: -40, filter: "blur(10px)" }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <div className="space-y-2 mb-8">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <Target className="w-5 h-5 text-primary" />
+                      </div>
+                      <h2 className="text-3xl md:text-4xl font-black text-foreground tracking-tighter">Final Objective</h2>
+                    </div>
+                    <div className="flex items-center gap-2 bg-success/5 px-3 py-1 rounded-full border border-success/20">
+                      <ShieldCheck className="w-3 h-3 text-success" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-success">{skillResult.level} matched</span>
+                    </div>
+                  </div>
+                  <p className="text-muted-foreground font-medium">Choose a milestone. We'll derive the architecture to get you there.</p>
+                </div>
+
+                <div className="space-y-4">
+                  {goals.map(g => {
+                    const estDate = g.key === 'job-ready' ? estimates.jobReady : (g.key !== 'custom' ? estimates[g.key] : null);
+                    const days = estDate ? Math.max(1, Math.ceil((estDate.getTime() - Date.now()) / 86400000)) : 0;
+
+                    return (
+                      <button
+                        key={g.key}
+                        onClick={() => handleGoalSelect(g.key)}
+                        className={`group relative w-full h-24 rounded-3xl border border-border/50 p-1 transition-all hover:scale-[1.01] text-left ${selectedGoal === g.key ? 'scale-[1.01] ring-2 ring-primary/20' : ''}`}
+                      >
+                        <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={3} variant={selectedGoal === g.key ? 'default' : 'white'} />
+                        <div className={`relative h-full w-full rounded-2xl bg-background flex items-center justify-between px-8 overflow-hidden group-hover:bg-secondary/10 transition-colors ${selectedGoal === g.key ? 'bg-primary/5' : ''}`}>
+                          <div className="flex items-center gap-5">
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${selectedGoal === g.key ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-110' : 'bg-primary/5 text-primary'}`}>
+                              {g.key === 'custom' ? <Calendar className="w-6 h-6" /> : <Sparkles className="w-6 h-6" />}
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-foreground font-black tracking-tight text-lg">{g.label}</span>
+                              {g.key !== 'custom' && (
+                                <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-1">Projection: {days} Days</span>
+                              )}
+                            </div>
+                          </div>
+
+                          {g.key !== 'custom' && (
+                            <div className="hidden md:flex flex-col items-end gap-1">
+                              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Target Date</span>
+                              <span className="text-sm font-mono font-bold text-primary">{estDate?.toLocaleDateString() || ''}</span>
+                            </div>
+                          )}
+
+                          {selectedGoal === g.key && (
+                            <motion.div className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center" layoutId="goalIndicator">
+                              <ArrowRight className="w-5 h-5 text-primary" />
+                            </motion.div>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {selectedGoal === 'custom' && (
+                  <motion.div
+                    className="mt-6 flex items-center gap-4 animate-in slide-in-from-top-4"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    <div className="relative group flex-1">
+                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors w-4 h-4" />
+                      <input
+                        type="date"
+                        value={customDate}
+                        onChange={e => setCustomDate(e.target.value)}
+                        min={new Date().toISOString().split('T')[0]}
+                        className="w-full bg-secondary/50 border border-border rounded-2xl pl-12 pr-4 py-4 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium"
+                      />
+                    </div>
+                    <button
+                      onClick={handleCustomDateConfirm}
+                      className="px-10 py-4 gradient-primary text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform"
+                    >
+                      Process →
+                    </button>
+                  </motion.div>
+                )}
+
+                <button onClick={() => setStep('status')} className="mt-8 flex items-center gap-2 text-muted-foreground text-[10px] font-black uppercase tracking-widest hover:text-primary transition-colors">
+                  <ArrowLeft className="w-3 h-3" /> Redefine Status
                 </button>
               </motion.div>
             )}
-            <button onClick={() => setStep('status')} className="mt-6 text-muted-foreground text-sm hover:text-foreground">
-              ← Back
-            </button>
-          </motion.div>
-        )}
 
-        {step === 'custom-goal' && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <h2 className="text-3xl font-bold text-foreground mb-2">What is your learning goal for this timeline?</h2>
-            <div className="space-y-3 mt-8">
-              {goals.filter(g => g.key !== 'custom').map(g => (
-                <motion.button
-                  key={g.key}
-                  onClick={() => { setSelectedGoal(g.key); handleFinish(g.key, customDate); }}
-                  className="w-full text-left glass px-6 py-4 rounded-xl text-foreground hover:border-primary/50 transition-all font-semibold"
-                  whileHover={{ scale: 1.01, x: 4 }}
-                >
-                  {g.label}
-                </motion.button>
-              ))}
-            </div>
-            <button onClick={() => { setStep('goal'); setSelectedGoal(''); setCustomDate(''); }} className="mt-6 text-muted-foreground text-sm hover:text-foreground">
-              ← Back
-            </button>
-          </motion.div>
-        )}
+            {step === 'custom-goal' && (
+              <motion.div
+                key="custom-goal"
+                initial={{ opacity: 0, x: 40, filter: "blur(10px)" }}
+                animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, x: -40, filter: "blur(10px)" }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <div className="space-y-4 mb-10">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <Timer className="w-5 h-5 text-primary" />
+                    </div>
+                    <h2 className="text-3xl md:text-4xl font-black text-foreground tracking-tighter">Timeline Calibration</h2>
+                  </div>
+                  <p className="text-muted-foreground font-medium">Select the target achievement for your custom deadline.</p>
+                </div>
 
+                <div className="grid grid-cols-1 gap-4">
+                  {goals.filter(g => g.key !== 'custom').map(g => (
+                    <button
+                      key={g.key}
+                      onClick={() => { setSelectedGoal(g.key); handleFinish(g.key, customDate); }}
+                      className="group relative h-24 rounded-3xl border border-border/50 p-1 transition-all hover:scale-[1.02] text-left"
+                    >
+                      <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={3} />
+                      <div className="relative h-full w-full rounded-2xl bg-background flex items-center justify-between px-8 overflow-hidden group-hover:bg-secondary/10 transition-colors">
+                        <span className="text-xl font-black text-foreground tracking-tight">{g.label}</span>
+                        <div className="p-2 bg-primary/10 rounded-xl group-hover:bg-primary group-hover:text-white transition-all">
+                          <ArrowRight className="w-5 h-5" />
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <button onClick={() => { setStep('goal'); setSelectedGoal(''); setCustomDate(''); }} className="mt-8 flex items-center gap-2 text-muted-foreground text-[10px] font-black uppercase tracking-widest hover:text-primary transition-colors">
+                  <ArrowLeft className="w-3 h-3" /> Adjust Deadline
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </motion.div>
   );

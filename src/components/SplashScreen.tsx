@@ -1,16 +1,22 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
+import { GlowingEffect } from './ui/glowing-effect';
+import { Compass, Sparkles, BrainCircuit } from 'lucide-react';
 
 export default function SplashScreen() {
   const { setScreen, careers, profile } = useApp();
-  const [mounted, setMounted] = useState(false);
+  const [phase, setPhase] = useState(0);
 
   useEffect(() => {
-    setMounted(true);
+    // Phase 0: Logo entering
+    // Phase 1: Text entering
+    // Phase 2: Loading State
+    const timer1 = setTimeout(() => setPhase(1), 800);
+    const timer2 = setTimeout(() => setPhase(2), 1600);
 
-    // Automatically transition to the next screen after 2.5 seconds
-    const timer = setTimeout(() => {
+    // Automatically transition to the next screen after 3.2 seconds for full effect visibility
+    const finalTimer = setTimeout(() => {
       if (careers && careers.length > 0) {
         setScreen('home');
       } else if (profile?.username) {
@@ -18,93 +24,147 @@ export default function SplashScreen() {
       } else {
         setScreen('auth');
       }
-    }, 2800);
+    }, 3500);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(finalTimer);
+    };
   }, [careers, profile, setScreen]);
 
   return (
     <motion.div
       className="fixed inset-0 bg-background flex flex-col items-center justify-center overflow-hidden"
-      exit={{ opacity: 0, scale: 1.02, filter: "blur(5px)" }}
-      transition={{ duration: 0.8, ease: "easeInOut" }}
+      exit={{ opacity: 0, scale: 0.98, filter: "blur(10px)" }}
+      transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
     >
-      {/* Subtle modern radial gradient background */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
-
-      {/* Decorative clean line */}
+      {/* Dynamic Background */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/5 via-background to-background" />
       <motion.div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-32 bg-gradient-to-b from-primary/50 to-transparent"
-        initial={{ height: 0, opacity: 0 }}
-        animate={{ height: 128, opacity: 1 }}
-        transition={{ duration: 1.5, ease: "easeOut" }}
+        className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none"
+        animate={{ opacity: [0.03, 0.05, 0.03] }}
+        transition={{ duration: 4, repeat: Infinity }}
       />
 
+      {/* Decorative Floating Particles */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1.5 h-1.5 rounded-full bg-primary/20"
+            initial={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              opacity: 0
+            }}
+            animate={{
+              y: [0, -100],
+              opacity: [0, 1, 0],
+              scale: [0, 1, 0]
+            }}
+            transition={{
+              duration: 4 + Math.random() * 4,
+              repeat: Infinity,
+              delay: Math.random() * 4
+            }}
+          />
+        ))}
+      </div>
+
       <div className="relative z-10 flex flex-col items-center">
-        {/* Modern Logo Mark */}
+        {/* Modern Logo Mark with Glowing Effect */}
         <motion.div
-          className="w-16 h-16 mb-8 rounded-2xl bg-gradient-to-br from-primary to-accent p-[1px] shadow-2xl shadow-primary/20"
-          initial={{ opacity: 0, y: 20, rotate: -10 }}
-          animate={{ opacity: 1, y: 0, rotate: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="group relative w-24 h-24 mb-12 rounded-[2rem] border border-border/50 p-1"
+          initial={{ opacity: 0, scale: 0.8, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="w-full h-full bg-background/90 backdrop-blur-sm rounded-[15px] flex items-center justify-center">
-            <div className="w-6 h-6 rounded-full bg-primary animate-pulse shadow-[0_0_15px_rgba(var(--primary),0.5)]" />
+          <GlowingEffect spread={120} glow={true} disabled={false} proximity={128} inactiveZone={0.01} borderWidth={3} />
+          <div className="relative h-full w-full rounded-[1.75rem] bg-background flex items-center justify-center overflow-hidden">
+            <motion.div
+              initial={{ rotate: -180, opacity: 0 }}
+              animate={{ rotate: 0, opacity: 1 }}
+              transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+            >
+              <Compass className="w-10 h-10 text-primary" />
+            </motion.div>
+
+            {/* Abstract internal glow */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent animate-pulse" />
           </div>
         </motion.div>
 
         {/* Clean Typography */}
-        <div className="overflow-hidden mb-2">
-          <motion.h1
-            className="text-4xl md:text-6xl font-extrabold tracking-tight text-foreground"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-          >
-            PathFindr<span className="text-primary">.AI</span>
-          </motion.h1>
+        <div className="flex flex-col items-center">
+          <div className="overflow-hidden h-16 mb-2">
+            <motion.h1
+              className="text-5xl md:text-7xl font-black tracking-tighter text-foreground text-center"
+              initial={{ opacity: 0, y: 80 }}
+              animate={phase >= 1 ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            >
+              PathFindr<span className="text-primary">.AI</span>
+            </motion.h1>
+          </div>
+
+          <motion.div
+            className="h-1 w-12 bg-primary/20 rounded-full mb-6"
+            initial={{ width: 0 }}
+            animate={phase >= 1 ? { width: 48 } : {}}
+            transition={{ duration: 1, delay: 0.5 }}
+          />
         </div>
 
-        {/* Subtitle / Loading state */}
-        <motion.div
-          className="overflow-hidden h-8 flex items-center justify-center mt-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-        >
-          <div className="flex items-center gap-3 space-x-1">
-            <span className="text-sm font-medium text-muted-foreground uppercase tracking-widest">
-              Initializing Experience
-            </span>
-            <div className="flex gap-1" aria-hidden="true">
+        {/* Status Messaging */}
+        <div className="h-12 flex flex-col items-center justify-center">
+          <AnimatePresence mode="wait">
+            {phase >= 2 && (
               <motion.div
-                className="w-1.5 h-1.5 rounded-full bg-primary/60"
-                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
-              />
-              <motion.div
-                className="w-1.5 h-1.5 rounded-full bg-primary/80"
-                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 1.2, repeat: Infinity, delay: 0.2 }}
-              />
-              <motion.div
-                className="w-1.5 h-1.5 rounded-full bg-primary"
-                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
-              />
-            </div>
-          </div>
-        </motion.div>
+                key="loading"
+                className="flex items-center gap-4 px-6 py-2 rounded-full glass border border-primary/20"
+                initial={{ opacity: 0, y: 10, filter: "blur(5px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -10, filter: "blur(5px)" }}
+              >
+                <div className="flex gap-1.5 items-center">
+                  <BrainCircuit className="w-4 h-4 text-primary animate-pulse" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">
+                    Initializing Neural Frameworks
+                  </span>
+                </div>
+                <div className="w-[1px] h-3 bg-primary/20" />
+                <div className="flex gap-1">
+                  {[0, 1, 2].map(i => (
+                    <motion.div
+                      key={i}
+                      className="w-1 h-1 rounded-full bg-primary"
+                      animate={{ scale: [1, 1.4, 1], opacity: [0.4, 1, 0.4] }}
+                      transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
+                    />
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
-      {/* Bottom decorative element */}
+      {/* High-end Copyright / Version Marker */}
       <motion.div
-        className="absolute bottom-12 left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground tracking-widest uppercase font-semibold"
+        className="absolute bottom-16 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 1 }}
+        transition={{ duration: 1, delay: 2 }}
       >
-        © 2026 PathWeaver Technologies
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles className="w-3 h-3 text-primary/40" />
+          <span className="text-[10px] text-muted-foreground/40 font-black uppercase tracking-[0.4em]">
+            Secure Environment v1.0.4
+          </span>
+          <Sparkles className="w-3 h-3 text-primary/40" />
+        </div>
+        <div className="h-px w-24 bg-gradient-to-r from-transparent via-border/50 to-transparent" />
       </motion.div>
     </motion.div>
   );

@@ -139,99 +139,106 @@ export default function RoadmapView() {
         )}
       </AnimatePresence>
 
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden p-8 rounded-[2rem] border border-border/50 bg-background shadow-sm">
-        <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={3} />
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="relative">
+        <div className="relative rounded-[2rem] border border-border/50 p-2 md:p-3">
+          <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={3} />
+          <div className="relative z-10 p-8 rounded-[1.75rem] bg-background overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-background to-transparent z-0 opacity-50"></div>
+            <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Briefcase className="w-5 h-5 text-primary" />
+                  <span className="text-primary font-mono text-sm tracking-widest uppercase">Active Roadmap</span>
+                </div>
+                <h1 className="text-3xl md:text-5xl font-extrabold text-foreground mb-4">
+                  {activeCareer.title}
+                </h1>
 
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-background to-transparent z-0"></div>
-        <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <Briefcase className="w-5 h-5 text-primary" />
-              <span className="text-primary font-mono text-sm tracking-widest uppercase">Active Roadmap</span>
-            </div>
-            <h1 className="text-3xl md:text-5xl font-extrabold text-foreground mb-4">
-              {activeCareer.title}
-            </h1>
+                <div className="flex flex-wrap items-center gap-4 text-sm font-medium mb-8">
+                  <div className="flex flex-col">
+                    <span className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Tasks Left</span>
+                    <span className="text-xl text-foreground font-mono">{tasksRemaining}</span>
+                  </div>
+                  <div className="w-px h-8 bg-border"></div>
+                  <div className="flex flex-col">
+                    <span className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Days Left</span>
+                    <span className="text-xl text-foreground font-mono">{daysRemaining}</span>
+                  </div>
+                  <div className="w-px h-8 bg-border"></div>
+                  <div className="flex flex-col">
+                    <span className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Pace</span>
+                    <span className={`px-3 py-1 mt-1 rounded-full shrink-0 ${paceClass} uppercase text-xs tracking-wider inline-block`}>{pace}</span>
+                  </div>
+                </div>
 
-            <div className="flex flex-wrap items-center gap-4 text-sm font-medium mb-8">
-              <div className="flex flex-col">
-                <span className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Tasks Left</span>
-                <span className="text-xl text-foreground font-mono">{tasksRemaining}</span>
-              </div>
-              <div className="w-px h-8 bg-border"></div>
-              <div className="flex flex-col">
-                <span className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Days Left</span>
-                <span className="text-xl text-foreground font-mono">{daysRemaining}</span>
-              </div>
-              <div className="w-px h-8 bg-border"></div>
-              <div className="flex flex-col">
-                <span className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Pace</span>
-                <span className={`px-3 py-1 mt-1 rounded-full shrink-0 ${paceClass} uppercase text-xs tracking-wider inline-block`}>{pace}</span>
-              </div>
-            </div>
-
-            <div className="max-w-xl">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold text-foreground">Overall Completion</span>
-                <span className="text-sm text-primary font-mono">{activeCareer.progress}%</span>
-              </div>
-              <div className="h-2 w-full bg-secondary rounded-full overflow-hidden shadow-inner">
-                <motion.div className="h-full progress-bar-fill" initial={{ width: 0 }} animate={{ width: `${activeCareer.progress}%` }} transition={{ duration: 1 }} />
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-3 shrink-0 md:min-w-[280px]">
-            <div className="glass-strong p-4 rounded-xl space-y-3">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground">Start Date:</span>
-                <span className="text-foreground font-medium">{new Date(activeCareer.startDate).toLocaleDateString()}</span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground">Target Date:</span>
-                <span className="text-foreground font-medium">{new Date(activeCareer.targetDate).toLocaleDateString()}</span>
+                <div className="max-w-xl">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-semibold text-foreground">Overall Completion</span>
+                    <span className="text-sm text-primary font-mono">{activeCareer.progress}%</span>
+                  </div>
+                  <div className="h-2 w-full bg-secondary rounded-full overflow-hidden shadow-inner">
+                    <motion.div className="h-full progress-bar-fill" initial={{ width: 0 }} animate={{ width: `${activeCareer.progress}%` }} transition={{ duration: 1 }} />
+                  </div>
+                </div>
               </div>
 
-              <div className="pt-3 mt-3 border-t border-border">
-                <span className="text-xs text-muted-foreground block mb-2">Alter Target Date</span>
-                <div className="flex items-center gap-2">
-                  <input type="date" value={newTargetDate} onChange={handleTargetDateChange} className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground flex-1 focus:outline-none focus:ring-1 focus:ring-primary/50" />
-                  {newTargetDate && <button onClick={applyTargetDate} className="bg-primary text-primary-foreground px-3 py-2 rounded-lg text-sm font-semibold">Apply</button>}
+              <div className="flex flex-col gap-3 shrink-0 md:min-w-[280px]">
+                <div className="glass-strong p-4 rounded-xl space-y-3">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground">Start Date:</span>
+                    <span className="text-foreground font-medium">{new Date(activeCareer.startDate).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-muted-foreground">Target Date:</span>
+                    <span className="text-foreground font-medium">{new Date(activeCareer.targetDate).toLocaleDateString()}</span>
+                  </div>
+
+                  <div className="pt-3 mt-3 border-t border-border">
+                    <span className="text-xs text-muted-foreground block mb-2">Alter Target Date</span>
+                    <div className="flex items-center gap-2">
+                      <input type="date" value={newTargetDate} onChange={handleTargetDateChange} className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground flex-1 focus:outline-none focus:ring-1 focus:ring-primary/50" />
+                      {newTargetDate && <button onClick={applyTargetDate} className="bg-primary text-primary-foreground px-3 py-2 rounded-lg text-sm font-semibold">Apply</button>}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <button onClick={() => setHomeTab('careers')} className="flex-1 glass px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2 hover:border-primary/50 transition-all">
+                    <ArrowRightLeft className="w-4 h-4 text-primary" /> Switch
+                  </button>
+                  <button onClick={() => { setShowResetConfirm(true); }} className="flex-1 glass px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2 hover:border-destructive/50 transition-all text-destructive">
+                    <RefreshCw className="w-4 h-4" /> Reset Progress
+                  </button>
                 </div>
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <button onClick={() => setHomeTab('careers')} className="flex-1 glass px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2 hover:border-primary/50 transition-all">
-                <ArrowRightLeft className="w-4 h-4 text-primary" /> Switch
-              </button>
-              <button onClick={() => { setShowResetConfirm(true); }} className="flex-1 glass px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2 hover:border-destructive/50 transition-all text-destructive">
-                <RefreshCw className="w-4 h-4" /> Reset Progress
-              </button>
-            </div>
+            {currentTask && (
+              <div className="mt-8 relative h-full">
+                <div className="relative rounded-2xl border border-border/50 p-1">
+                  <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={2} />
+                  <div className="relative z-10 p-6 rounded-[1.25rem] bg-background shadow-lg flex flex-col md:flex-row gap-6 justify-between items-start md:items-center overflow-hidden">
+                    <div className="flex-1">
+                      <p className="text-xs text-primary uppercase font-mono tracking-wider mb-2">Current Task Focus</p>
+                      <h3 className="text-xl font-bold text-foreground mb-1">{currentTask.title}</h3>
+                      <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{currentTask.description}</p>
+                      <div className="inline-flex bg-primary/10 px-3 py-2 rounded-lg border border-primary/20">
+                        <p className="text-xs text-primary font-medium"><strong className="mr-1">Objective:</strong> {currentTask.objective}</p>
+                      </div>
+                    </div>
+                    <button className="glass shrink-0 px-6 py-3 text-sm text-primary font-bold rounded-xl whitespace-nowrap hover:bg-primary/10 transition-colors border-primary/50 shadow-[0_0_15px_rgba(var(--primary),0.1)]" onClick={() => {
+                      const p = activeCareer.phases.find(x => x.id === currentTask.phaseId);
+                      const isLastInPhase = p?.tasks[p.tasks.length - 1].id === currentTask.id;
+                      handleTaskComplete(currentTask.id, isLastInPhase);
+                    }}>
+                      Mark Complete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-
-        {currentTask && (
-          <div className="mt-8 p-6 rounded-2xl border border-secondary bg-background shadow-lg relative z-20 flex flex-col md:flex-row gap-6 justify-between items-start md:items-center overflow-hidden">
-            <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={3} />
-            <div className="relative z-10 flex-1">
-              <p className="text-xs text-primary uppercase font-mono tracking-wider mb-2">Current Task Focus</p>
-              <h3 className="text-xl font-bold text-foreground mb-1">{currentTask.title}</h3>
-              <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{currentTask.description}</p>
-              <div className="inline-flex bg-primary/10 px-3 py-2 rounded-lg border border-primary/20">
-                <p className="text-xs text-primary font-medium"><strong className="mr-1">Objective:</strong> {currentTask.objective}</p>
-              </div>
-            </div>
-            <button className="glass shrink-0 px-6 py-3 text-sm text-primary font-bold rounded-xl whitespace-nowrap hover:bg-primary/10 transition-colors border-primary/50 shadow-[0_0_15px_rgba(var(--primary),0.1)]" onClick={() => {
-              const p = activeCareer.phases.find(x => x.id === currentTask.phaseId);
-              const isLastInPhase = p?.tasks[p.tasks.length - 1].id === currentTask.id;
-              handleTaskComplete(currentTask.id, isLastInPhase);
-            }}>
-              Mark Complete
-            </button>
-          </div>
-        )}
       </motion.div>
 
       {/* Search & Filters */}

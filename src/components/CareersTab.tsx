@@ -41,75 +41,79 @@ export default function CareersTab() {
             return (
               <motion.div
                 key={career.id}
-                className={`relative overflow-hidden p-6 rounded-[2rem] border border-border/50 bg-background shadow-sm flex flex-col justify-between ${isActive ? 'ring-2 ring-primary/30' : ''}`}
+                className="relative"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
+                whileHover={{ y: -4, scale: 1.01 }}
               >
-                <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={3} />
-
-                {isActive && (
-                  <div className="absolute top-0 right-0 px-4 py-1.5 bg-primary/20 text-primary text-xs font-bold uppercase tracking-wider rounded-bl-xl z-20">
-                    Active
-                  </div>
-                )}
-                <div className="relative z-10 flex-col flex h-full">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-2xl font-bold text-foreground mb-2">{career.title}</h3>
-                      <div className="flex items-center gap-2">
-                        <span className="bg-secondary px-2.5 py-1 rounded text-xs text-muted-foreground uppercase tracking-wider font-medium">
-                          {career.level}
-                        </span>
-                        <span className="bg-primary/10 px-2.5 py-1 rounded text-xs text-primary uppercase tracking-wider font-bold">
-                          {career.skillScore}% Score
-                        </span>
+                <div className={`relative h-full rounded-[2rem] border border-border/50 p-2 ${isActive ? 'ring-2 ring-primary/30' : ''}`}>
+                  <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={3} />
+                  <div className="relative h-full flex flex-col justify-between rounded-[1.75rem] bg-background p-6 overflow-hidden">
+                    {isActive && (
+                      <div className="absolute top-0 right-0 px-4 py-1.5 bg-primary/20 text-primary text-[10px] font-bold uppercase tracking-wider rounded-bl-xl z-20">
+                        Active
                       </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4 mb-6 mt-4 flex-1">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="glass px-3 py-2 rounded-lg text-xs">
-                        <span className="text-muted-foreground block mb-1">Started</span>
-                        <span className="text-foreground font-mono">{new Date(career.startDate).toLocaleDateString()}</span>
-                      </div>
-                      <div className="glass px-3 py-2 rounded-lg text-xs">
-                        <span className="text-muted-foreground block mb-1">Target</span>
-                        <span className="text-foreground font-mono">{new Date(career.targetDate).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-foreground">{career.progress}% Completed</span>
-                      <span className="text-xs text-muted-foreground">{daysLeft} days left</span>
-                    </div>
-                    <div className="h-2 bg-secondary rounded-full overflow-hidden mb-6">
-                      <div className="h-full progress-bar-fill rounded-full" style={{ width: `${career.progress}%` }} />
-                    </div>
-
-                    <div className="flex items-center gap-3 pt-4 border-t border-border">
-                      {!isActive ? (
-                        <button
-                          onClick={() => setActiveCareer(career.id)}
-                          className="flex-1 glass px-4 py-2.5 rounded-xl text-primary text-sm font-semibold hover:bg-primary hover:text-primary-foreground transition-colors flex items-center justify-center gap-2"
-                        >
-                          <ArrowRightLeft className="w-4 h-4" /> Switch to this
-                        </button>
-                      ) : (
-                        <div className="flex-1 flex items-center justify-center py-2.5 text-sm font-semibold text-primary/60 cursor-default">
-                          Currently Active
+                    )}
+                    <div className="relative z-10 flex flex-col h-full">
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h3 className="text-2xl font-bold text-foreground mb-2">{career.title}</h3>
+                          <div className="flex items-center gap-2">
+                            <span className="bg-secondary px-2.5 py-1 rounded text-[10px] text-muted-foreground uppercase tracking-wider font-medium font-mono">
+                              {career.level}
+                            </span>
+                            <span className="bg-primary/10 px-2.5 py-1 rounded text-[10px] text-primary uppercase tracking-wider font-bold font-mono">
+                              {career.skillScore}% Score
+                            </span>
+                          </div>
                         </div>
-                      )}
-                      <button
-                        onClick={() => setCareerToDelete(career.id)}
-                        className="px-4 py-2.5 glass rounded-xl text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors flex items-center justify-center"
-                        title="Delete path"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      </div>
+
+                      <div className="space-y-4 mb-6 mt-4 flex-1">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="glass px-3 py-2 rounded-lg text-[10px]">
+                            <span className="text-muted-foreground block mb-1 uppercase tracking-tighter">Started</span>
+                            <span className="text-foreground font-mono">{new Date(career.startDate).toLocaleDateString()}</span>
+                          </div>
+                          <div className="glass px-3 py-2 rounded-lg text-[10px]">
+                            <span className="text-muted-foreground block mb-1 uppercase tracking-tighter">Target</span>
+                            <span className="text-foreground font-mono">{new Date(career.targetDate).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-medium text-foreground">{career.progress}% Completed</span>
+                          <span className="text-[10px] text-muted-foreground font-mono">{daysLeft} days left</span>
+                        </div>
+                        <div className="h-1.5 bg-secondary rounded-full overflow-hidden mb-6">
+                          <div className="h-full progress-bar-fill rounded-full" style={{ width: `${career.progress}%` }} />
+                        </div>
+
+                        <div className="flex items-center gap-2 pt-4 border-t border-border">
+                          {!isActive ? (
+                            <button
+                              onClick={() => setActiveCareer(career.id)}
+                              className="flex-1 glass px-4 py-2.5 rounded-xl text-primary text-xs font-semibold hover:bg-primary hover:text-primary-foreground transition-all flex items-center justify-center gap-2"
+                            >
+                              <ArrowRightLeft className="w-3 h-3" /> Switch Path
+                            </button>
+                          ) : (
+                            <div className="flex-1 flex items-center justify-center py-2.5 text-xs font-semibold text-primary/60 cursor-default uppercase tracking-widest">
+                              Currently Active
+                            </div>
+                          )}
+                          <button
+                            onClick={() => setCareerToDelete(career.id)}
+                            className="p-2.5 glass rounded-xl text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                            title="Delete path"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
