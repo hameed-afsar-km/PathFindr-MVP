@@ -1,0 +1,97 @@
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useApp, HomeTab } from '@/context/AppContext';
+import Dashboard from './Dashboard';
+import RoadmapView from './RoadmapView';
+import PracticeArena from './PracticeArena';
+import InterviewPrep from './InterviewPrep';
+import Simulations from './Simulations';
+import CareersTab from './CareersTab';
+import ProfileTab from './ProfileTab';
+import Chatbot from './Chatbot';
+import { LayoutDashboard, Map, Dumbbell, MessageSquare, Gamepad2, Briefcase, UserCircle, MessageCircle } from 'lucide-react';
+
+const tabs: { key: HomeTab; label: string; icon: React.ElementType }[] = [
+  { key: 'dashboard', label: 'Home', icon: LayoutDashboard },
+  { key: 'roadmap', label: 'Roadmap', icon: Map },
+  { key: 'practice', label: 'Practice', icon: Dumbbell },
+  { key: 'interview', label: 'Interview', icon: MessageSquare },
+  { key: 'simulations', label: 'Sims', icon: Gamepad2 },
+  { key: 'careers', label: 'Careers', icon: Briefcase },
+  { key: 'profile', label: 'Profile', icon: UserCircle },
+];
+
+const tabComponents: Record<HomeTab, React.ElementType> = {
+  dashboard: Dashboard,
+  roadmap: RoadmapView,
+  practice: PracticeArena,
+  interview: InterviewPrep,
+  simulations: Simulations,
+  careers: CareersTab,
+  profile: ProfileTab,
+};
+
+export default function HomeScreen() {
+  const { homeTab, setHomeTab } = useApp();
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const TabContent = tabComponents[homeTab];
+
+  return (
+    <div className="flex flex-col h-screen bg-background">
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto scrollbar-thin">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={homeTab}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+          >
+            <TabContent />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      <AnimatePresence>
+        {isChatOpen && (
+          <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} className="z-50">
+            <Chatbot />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <button
+        onClick={() => setIsChatOpen(!isChatOpen)}
+        className="fixed bottom-20 right-4 md:right-8 z-50 w-14 h-14 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+      >
+        <MessageCircle className="w-6 h-6" />
+      </button>
+
+      {/* Bottom nav */}
+      <nav className="glass-strong border-t border-border px-2 py-2 flex items-center justify-around shrink-0">
+        {tabs.map(tab => {
+          const isActive = homeTab === tab.key;
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setHomeTab(tab.key)}
+              className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition-all ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+                }`}
+            >
+              <Icon className="w-5 h-5" />
+              <span className="text-[10px] font-medium">{tab.label}</span>
+              {isActive && (
+                <motion.div
+                  className="w-1 h-1 rounded-full bg-primary"
+                  layoutId="tab-indicator"
+                />
+              )}
+            </button>
+          );
+        })}
+      </nav>
+    </div>
+  );
+}
