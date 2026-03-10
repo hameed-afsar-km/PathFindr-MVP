@@ -9,19 +9,29 @@ const topics = ['JavaScript', 'React', 'TypeScript', 'Python', 'SQL', 'System De
 export default function PracticeArena() {
   const [selectedTopic, setSelectedTopic] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [questions, setQuestions] = useState<ReturnType<typeof getPracticeQuestions>>([]);
+  const [questions, setQuestions] = useState<any[]>([]);
   const [currentQ, setCurrentQ] = useState(0);
   const [answered, setAnswered] = useState<number | null>(null);
   const [score, setScore] = useState(0);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const filteredTopics = topics.filter(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  const startPractice = (topic: string) => {
+  const startPractice = async (topic: string) => {
     setSelectedTopic(topic);
-    setQuestions(getPracticeQuestions(topic));
-    setCurrentQ(0);
-    setAnswered(null);
-    setScore(0);
+    setIsLoading(true);
+    try {
+      const qs = await getPracticeQuestions(topic);
+      setQuestions(qs);
+      setCurrentQ(0);
+      setAnswered(null);
+      setScore(0);
+    } catch (error) {
+      console.error("Failed to load practice questions:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleAnswer = (idx: number) => {
@@ -90,6 +100,23 @@ export default function PracticeArena() {
 
   return (
     <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-8">
+      <AnimatePresence>
+        {isLoading && (
+          <motion.div
+            className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center gap-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="relative">
+              <motion.div animate={{ rotate: 360 }} transition={{ duration: 4, repeat: Infinity, ease: "linear" }} className="w-24 h-24 rounded-full border-t-2 border-primary" />
+              <BrainCircuit className="w-10 h-10 text-primary absolute inset-0 m-auto animate-pulse" />
+            </div>
+            <p className="text-xl font-black text-foreground uppercase tracking-widest animate-pulse">AI Synthesizing Challenges...</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <button

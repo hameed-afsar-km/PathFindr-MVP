@@ -8,10 +8,11 @@ import { GlowingEffect } from './ui/glowing-effect';
 export default function Simulations() {
   const { updateProfile, profile } = useApp();
   const [started, setStarted] = useState(false);
+  const [scenarios, setScenarios] = useState<any[]>([]);
   const [currentSim, setCurrentSim] = useState(0);
   const [answered, setAnswered] = useState<number | null>(null);
   const [totalXP, setTotalXP] = useState(0);
-  const scenarios = getSimulationScenarios();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleAnswer = (idx: number) => {
     if (answered !== null) return;
@@ -61,10 +62,23 @@ export default function Simulations() {
               </p>
 
               <button
-                onClick={() => setStarted(true)}
-                className="px-12 py-5 gradient-primary rounded-2xl text-primary-foreground font-black text-sm uppercase tracking-[0.3em] overflow-hidden group relative shadow-2xl shadow-primary/30"
+                onClick={async () => {
+                  setIsLoading(true);
+                  try {
+                    const res = await getSimulationScenarios(profile.username || 'Engineering');
+                    setScenarios(res);
+                    setStarted(true);
+                    setCurrentSim(0);
+                    setAnswered(null);
+                    setTotalXP(0);
+                  } finally {
+                    setIsLoading(false);
+                  }
+                }}
+                disabled={isLoading}
+                className="px-12 py-5 gradient-primary rounded-2xl text-primary-foreground font-black text-sm uppercase tracking-[0.3em] overflow-hidden group relative shadow-2xl shadow-primary/30 disabled:opacity-50"
               >
-                <span className="relative z-10">Initialize Simulation</span>
+                <span className="relative z-10">{isLoading ? 'Synthesizing...' : 'Initialize Simulation'}</span>
                 <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
               </button>
             </div>

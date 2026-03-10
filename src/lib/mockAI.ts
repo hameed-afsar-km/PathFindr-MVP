@@ -488,7 +488,17 @@ export function getDateEstimates(level: 'beginner' | 'intermediate' | 'advanced'
 }
 
 // Practice questions database
-export function getPracticeQuestions(topic: string) {
+export async function getPracticeQuestions(topic: string) {
+  const prompt = `
+    Generate 10 technical practice questions for the topic: ${topic}.
+    Include 1 correct answer and 3 tricky distractors per question.
+    Also include a helpful explanation for the correct answer.
+    Return ONLY a JSON array: [{ "id": "p1", "question": "...", "options": ["A", "B", "C", "D"], "correctIndex": 0, "explanation": "..." }]
+  `;
+
+  const geminiResult = await askGemini(prompt);
+  if (geminiResult && Array.isArray(geminiResult)) return geminiResult;
+
   return Array.from({ length: 10 }, (_, i) => ({
     id: `practice-${topic}-${i}`,
     question: `Practice Question ${i + 1}: What is an important aspect of ${topic}?`,
@@ -499,7 +509,17 @@ export function getPracticeQuestions(topic: string) {
 }
 
 // Interview questions
-export function getInterviewQuestions(company: string) {
+export async function getInterviewQuestions(company: string) {
+  const prompt = `
+    Generate 8 real technical and behavioral interview questions asked at ${company} recently.
+    For each, provide 4 multiple choice options where one is the 'Best/Winning' approach.
+    Include the year and type (technical/behavioral).
+    Return ONLY a JSON array: [{ "id": "int1", "question": "...", "options": ["A", "B", "C", "D"], "correctIndex": 0, "year": 2024, "type": "technical" }]
+  `;
+
+  const geminiResult = await askGemini(prompt);
+  if (geminiResult && Array.isArray(geminiResult)) return geminiResult;
+
   const years = [2024, 2023, 2022, 2021];
   return Array.from({ length: 8 }, (_, i) => ({
     id: `interview-${company}-${i}`,
@@ -512,7 +532,17 @@ export function getInterviewQuestions(company: string) {
 }
 
 // Simulation scenarios
-export function getSimulationScenarios() {
+export async function getSimulationScenarios(careerTitle: string = 'Software Engineering') {
+  const prompt = `
+    Generate 3 complex professional simulation scenarios for a ${careerTitle} role.
+    Each scenario should present a difficult situation and 4 options with different XP rewards.
+    Only 1 option should be the 'correct' professional response.
+    Return ONLY a JSON array: [{ "id": "s1", "scenario": "...", "options": [{ "text": "...", "xp": 50, "correct": true, "explanation": "..." }] }]
+  `;
+
+  const geminiResult = await askGemini(prompt);
+  if (geminiResult && Array.isArray(geminiResult)) return geminiResult;
+
   return [
     {
       id: 'sim-1',

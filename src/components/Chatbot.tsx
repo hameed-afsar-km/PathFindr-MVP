@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
-import { Send, Bot, User, Sparkles } from 'lucide-react';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { Send, Bot, User, Sparkles, X, MessageCircle, Brain, Loader2 } from 'lucide-react';
+import { askGemini } from '@/lib/gemini';
 
 interface Message {
     id: string;
@@ -42,31 +42,21 @@ export default function Chatbot() {
         setIsLoading(true);
 
         try {
-            if (API_KEY) {
-                const genAI = new GoogleGenerativeAI(API_KEY);
-                // Using the recommended gemini-1.5 model
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                const contextPrompt = `You are a helpful AI mentor in PathFindr.AI. The user is currently focusing on the career path: ${activeCareer?.title || 'Unknown'}. Try to frame your advice relevant to this career. User asks: ${userMessage}`;
+            const contextPrompt = `You are a helpful AI mentor in PathFindr.AI. The user is focusing on: ${activeCareer?.title || 'General'}. User asks: ${userMessage}`;
+            const responseText = await askGemini(contextPrompt, false);
 
-                const result = await model.generateContent(contextPrompt);
-                const responseText = result.response.text();
-
+            if (responseText) {
                 setMessages(prev => [...prev, { id: Date.now().toString(), isBot: true, content: responseText }]);
             } else {
-                // Fallback mock if no API key is set
-                setTimeout(() => {
-                    setMessages(prev => [...prev, {
-                        id: Date.now().toString(),
-                        isBot: true,
-                        content: `[Mock AI Response for ${activeCareer?.title || 'General'}] To truly master ${userMessage}, you should start by breaking down the fundamentals. (Note: Add VITE_GEMINI_API_KEY to your env or localStorage['GEMINI_API_KEY'] to unlock true Gemini powers.)`
-                    }]);
-                    setIsLoading(false);
-                }, 1500);
-                return;
+                setMessages(prev => [...prev, {
+                    id: Date.now().toString(),
+                    isBot: true,
+                    content: `[Fallback] I'm currently running in limited mode. To unlock my full potential, please ensure a valid Gemini API Key is set in your environment or Settings.`
+                }]);
             }
         } catch (err) {
             console.error(err);
-            setMessages(prev => [...prev, { id: Date.now().toString(), isBot: true, content: "I'm having trouble connecting to my cognitive cores right now. Please verify my API keys or try again later." }]);
+            setMessages(prev => [...prev, { id: Date.now().toString(), isBot: true, content: "I'm having trouble connecting to my cognitive cores right now. Please verify your API key or connection." }]);
         }
         setIsLoading(false);
     };

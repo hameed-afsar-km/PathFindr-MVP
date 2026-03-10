@@ -8,16 +8,25 @@ const companies = ['Google', 'Amazon', 'Meta', 'Apple', 'Microsoft', 'Netflix', 
 
 export default function InterviewPrep() {
   const [company, setCompany] = useState('');
-  const [questions, setQuestions] = useState<ReturnType<typeof getInterviewQuestions>>([]);
+  const [questions, setQuestions] = useState<any[]>([]);
   const [currentQ, setCurrentQ] = useState(0);
   const [answered, setAnswered] = useState<number | null>(null);
   const [filter, setFilter] = useState<'all' | 'technical' | 'behavioral'>('all');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const startPrep = (c: string) => {
+  const startPrep = async (c: string) => {
     setCompany(c);
-    setQuestions(getInterviewQuestions(c));
-    setCurrentQ(0);
-    setAnswered(null);
+    setIsLoading(true);
+    try {
+      const qs = await getInterviewQuestions(c);
+      setQuestions(qs);
+      setCurrentQ(0);
+      setAnswered(null);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!company) {
@@ -64,6 +73,23 @@ export default function InterviewPrep() {
 
   return (
     <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-8">
+      <AnimatePresence>
+        {isLoading && (
+          <motion.div
+            className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center gap-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="relative">
+              <motion.div animate={{ rotate: 360 }} transition={{ duration: 4, repeat: Infinity, ease: "linear" }} className="w-24 h-24 rounded-full border-t-2 border-accent" />
+              <Trophy className="w-10 h-10 text-accent absolute inset-0 m-auto animate-pulse" />
+            </div>
+            <p className="text-xl font-black text-foreground uppercase tracking-widest animate-pulse">AI Sourcing Interview Intel...</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <button
