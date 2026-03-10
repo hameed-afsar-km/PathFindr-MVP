@@ -220,7 +220,7 @@ export default function Dashboard() {
               <h3 className="text-2xl font-black text-foreground mb-4 leading-tight">{activeCareer.title}</h3>
               <div className="flex flex-wrap items-center gap-2">
                 <span className="bg-primary/5 border border-primary/20 text-primary px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">{activeCareer.level}</span>
-                <span className="bg-accent/5 border border-accent/20 text-accent px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">IQ: {activeCareer.skillScore}</span>
+                <span className="bg-accent/5 border border-accent/20 text-accent px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">IQ: {typeof activeCareer.skillScore === 'number' ? activeCareer.skillScore.toFixed(2) : activeCareer.skillScore}</span>
               </div>
             </div>
 

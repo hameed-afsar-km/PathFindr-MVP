@@ -188,7 +188,7 @@ export function generateSkillQuestions(careerId: string): { question: string; op
 }
 
 export function calculateSkillScore(correct: number, total: number): { score: number; level: 'beginner' | 'intermediate' | 'advanced' } {
-  const pct = (correct / total) * 100;
+  const pct = Number(((correct / total) * 100).toFixed(2));
   if (pct >= 70) return { score: pct, level: 'advanced' };
   if (pct >= 40) return { score: pct, level: 'intermediate' };
   return { score: pct, level: 'beginner' };
