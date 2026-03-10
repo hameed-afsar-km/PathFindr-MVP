@@ -40,7 +40,7 @@ export default function HomeScreen() {
   return (
     <div className="flex flex-col h-screen bg-background">
       {/* Content */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin">
+      <div className="flex-1 overflow-y-auto scrollbar-thin pb-32">
         <AnimatePresence mode="wait">
           <motion.div
             key={homeTab}
@@ -48,8 +48,24 @@ export default function HomeScreen() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
+            className="min-h-full flex flex-col"
           >
-            <TabContent />
+            <div className="flex-1">
+              <TabContent />
+            </div>
+
+            {/* Footer */}
+            <footer className="mt-20 py-10 px-6 border-t border-border/40 text-center">
+              <h3 className="text-lg font-black text-foreground tracking-tight mb-1">
+                PathFindr<span className="text-primary">.AI</span>
+              </h3>
+              <p className="text-xs text-muted-foreground font-medium">
+                Developed by <span className="text-primary/80">Hameed Afsar K M</span>
+              </p>
+              <p className="text-[10px] text-muted-foreground/50 mt-4 uppercase tracking-[0.2em]">
+                © 2026 All Rights Reserved
+              </p>
+            </footer>
           </motion.div>
         </AnimatePresence>
       </div>
