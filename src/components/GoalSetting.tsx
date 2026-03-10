@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useApp, CareerPath } from '@/context/AppContext';
 import { getDateEstimates, generateRoadmap } from '@/lib/mockAI';
 import { GlowingEffect } from './ui/glowing-effect';
-import { Calendar, Target, UserCheck, Timer, ArrowLeft, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
+import { Calendar, Target, UserCheck, Timer, ArrowLeft, ArrowRight, ShieldCheck, Sparkles, Brain } from 'lucide-react';
 
 const statuses = ['Student', 'Working Professional', 'Career Switcher', 'Unemployed'];
 const goals = [
@@ -22,6 +22,7 @@ export default function GoalSetting() {
   const [, setStatus] = useState('');
   const [selectedGoal, setSelectedGoal] = useState('');
   const [customDate, setCustomDate] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const estimates = getDateEstimates(skillResult.level);
 
@@ -41,54 +42,61 @@ export default function GoalSetting() {
   };
 
   const handleFinish = async (goal: string, customDateStr: string) => {
-    let targetDate: Date = customDateStr ? new Date(customDateStr) : new Date();
-    let daysRemaining = 1;
+    setIsLoading(true);
+    try {
+      let targetDate: Date = customDateStr ? new Date(customDateStr) : new Date();
+      let daysRemaining = 1;
 
-    if (!customDateStr) {
-      switch (goal) {
-        case 'basics': targetDate = estimates.basics; break;
-        case 'intermediate': targetDate = estimates.intermediate; break;
-        case 'job-ready': targetDate = estimates.jobReady; break;
-        default: targetDate = estimates.jobReady; break;
+      if (!customDateStr) {
+        switch (goal) {
+          case 'basics': targetDate = estimates.basics; break;
+          case 'intermediate': targetDate = estimates.intermediate; break;
+          case 'job-ready': targetDate = estimates.jobReady; break;
+          default: targetDate = estimates.jobReady; break;
+        }
       }
+      daysRemaining = Math.max(1, Math.ceil((targetDate.getTime() - Date.now()) / 86400000));
+
+      const phases = await generateRoadmap(careerId, daysRemaining, skillResult.level, goal);
+
+      // Get career title from mockAI
+      const careerTitles: Record<string, string> = {
+        'frontend-dev': 'Frontend Developer',
+        'backend-dev': 'Backend Developer',
+        'data-scientist': 'Data Scientist',
+        'ui-ux-designer': 'UI/UX Designer',
+        'devops-engineer': 'DevOps Engineer',
+        'mobile-dev': 'Mobile App Developer',
+        'cybersecurity': 'Cybersecurity Analyst',
+        'product-manager': 'Product Manager',
+        'ai-ml-engineer': 'AI/ML Engineer',
+        'cloud-architect': 'Cloud Architect',
+        'blockchain-dev': 'Blockchain Developer',
+        'game-dev': 'Game Developer',
+      };
+
+      const career: CareerPath = {
+        id: careerId,
+        title: careerTitles[careerId] || careerId,
+        matchPercentage: 0,
+        justification: '',
+        startDate: new Date().toISOString(),
+        targetDate: targetDate.toISOString(),
+        level: skillResult.level,
+        goal: (goal || 'job-ready') as CareerPath['goal'],
+        skillScore: skillResult.score,
+        progress: 0,
+        isActive: true,
+        phases,
+      };
+
+      addCareer(career);
+      setScreen('home');
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
     }
-    daysRemaining = Math.max(1, Math.ceil((targetDate.getTime() - Date.now()) / 86400000));
-
-    const phases = await generateRoadmap(careerId, daysRemaining, skillResult.level, goal);
-
-    // Get career title from mockAI
-    const careerTitles: Record<string, string> = {
-      'frontend-dev': 'Frontend Developer',
-      'backend-dev': 'Backend Developer',
-      'data-scientist': 'Data Scientist',
-      'ui-ux-designer': 'UI/UX Designer',
-      'devops-engineer': 'DevOps Engineer',
-      'mobile-dev': 'Mobile App Developer',
-      'cybersecurity': 'Cybersecurity Analyst',
-      'product-manager': 'Product Manager',
-      'ai-ml-engineer': 'AI/ML Engineer',
-      'cloud-architect': 'Cloud Architect',
-      'blockchain-dev': 'Blockchain Developer',
-      'game-dev': 'Game Developer',
-    };
-
-    const career: CareerPath = {
-      id: careerId,
-      title: careerTitles[careerId] || careerId,
-      matchPercentage: 0,
-      justification: '',
-      startDate: new Date().toISOString(),
-      targetDate: targetDate.toISOString(),
-      level: skillResult.level,
-      goal: (goal || 'job-ready') as CareerPath['goal'],
-      skillScore: skillResult.score,
-      progress: 0,
-      isActive: true,
-      phases,
-    };
-
-    addCareer(career);
-    setScreen('home');
   };
 
   return (
@@ -97,6 +105,29 @@ export default function GoalSetting() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
+      <AnimatePresence>
+        {isLoading && (
+          <motion.div
+            className="fixed inset-0 z-[100] bg-background flex flex-col items-center justify-center gap-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="relative">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                className="w-32 h-32 rounded-full border-t-2 border-primary"
+              />
+              <Brain className="w-12 h-12 text-primary absolute inset-0 m-auto animate-pulse" />
+            </div>
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-black text-foreground uppercase tracking-[0.3em]">Neural Synthesis</h2>
+              <p className="text-muted-foreground font-medium animate-pulse">Architecting your personalized ${careerId} roadmap...</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Background radial glow */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
 

@@ -245,6 +245,43 @@ export async function generateRoadmap(careerId: string, daysRemaining: number, l
   return localGenerateRoadmap(careerId, daysRemaining);
 }
 
+export async function adaptRoadmap(careerId: string, daysRemaining: number, currentPhases: any[], strategy: string): Promise<any[]> {
+  const career = CAREER_DATABASE[careerId];
+  if (!career) return currentPhases;
+
+  const incompleteTasks = currentPhases.flatMap(p => p.tasks).filter((t: any) => !t.completed);
+
+  const prompt = `
+    The user is pursuing a ${career.title} career.
+    Action: Adapt the REMAINING roadmap based on the strategy: "${strategy}".
+    Days left until deadline: ${daysRemaining}.
+    
+    Current remaining tasks:
+    ${JSON.stringify(incompleteTasks.map(t => ({ title: t.title, description: t.description })))}
+
+    CRITICAL:
+    1. If "Increase Difficulty": Expand these into MORE tasks (add 3-5 high-level engineering challenges).
+    2. If "Reduce Difficulty": Consolidate into FEWER tasks (keep only 60% essential concepts).
+    3. If "Relax Pace": Keep the tasks but simplify/break them down for lower intensity.
+    4. If "Increase Pace": Increase task count but focus on rapid implementation techniques.
+    
+    Return ONLY a JSON array of NEW phases for these remaining tasks: 
+    [{ "id": "adapted-phase-N", "title": "...", "tasks": [{ "id": "new-T", "day": N, "title": "...", "description": "...", "objective": "...", "youtubeLink": "...", "completed": false, "phaseId": "..." }] }]
+  `;
+
+  const geminiResult = await askGemini(prompt);
+  if (geminiResult && Array.isArray(geminiResult)) {
+    const completedPhases = currentPhases.map(p => ({
+      ...p,
+      tasks: p.tasks.filter((t: any) => t.completed)
+    })).filter(p => p.tasks.length > 0);
+
+    return [...completedPhases, ...geminiResult];
+  }
+
+  return currentPhases;
+}
+
 function localGenerateRoadmap(careerId: string, daysRemaining: number): Phase[] {
   const career = CAREER_DATABASE[careerId];
   if (!career) return [];

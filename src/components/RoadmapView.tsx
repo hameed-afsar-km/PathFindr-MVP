@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
-import { Lock, CheckCircle2, Circle, ExternalLink, ChevronDown, ChevronRight, Search, Calendar, RefreshCw, Briefcase, Filter, ArrowRightLeft } from 'lucide-react';
+import { adaptRoadmap } from '@/lib/mockAI';
+import { Lock, CheckCircle2, Circle, ExternalLink, ChevronDown, ChevronRight, Search, Calendar, RefreshCw, Briefcase, Filter, ArrowRightLeft, Sparkles, BrainCircuit } from 'lucide-react';
 import { GlowingEffect } from './ui/glowing-effect';
 
 export default function RoadmapView() {
@@ -12,6 +13,7 @@ export default function RoadmapView() {
   const [newTargetDate, setNewTargetDate] = useState('');
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [resetConfirmText, setResetConfirmText] = useState('');
+  const [isAdapting, setIsAdapting] = useState(false);
 
   const filteredPhases = useMemo(() => {
     if (!activeCareer) return [];
@@ -65,16 +67,54 @@ export default function RoadmapView() {
     setNewTargetDate('');
   };
 
-  const applyAdjustment = (strategy: string) => {
-    // In a real application, this would invoke the AI or regenerate the phases.
-    // Here we just close the modal for mock purposes and simulate strategy implementation.
-    console.log(`Applying adjustment strategy: ${strategy}`);
+  const applyAdjustment = async (strategy: string) => {
+    if (strategy === 'No Change') {
+      setShowAdjustModal(null);
+      return;
+    }
+
+    setIsAdapting(true);
     setShowAdjustModal(null);
+
+    try {
+      const newPhases = await adaptRoadmap(activeCareer.id, daysRemaining, activeCareer.phases, strategy);
+      updateCareer(activeCareer.id, { phases: newPhases });
+      console.log(`Regenerated roadmap with strategy: ${strategy}`);
+    } catch (error) {
+      console.error('Adaptation failed:', error);
+    } finally {
+      setIsAdapting(false);
+    }
   };
 
   return (
-    <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-6">
+    <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-6 relative">
       <AnimatePresence>
+        {isAdapting && (
+          <motion.div
+            className="fixed inset-0 z-[100] glass-strong flex flex-col items-center justify-center gap-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="relative">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                className="w-24 h-24 rounded-full border-t-2 border-primary"
+              />
+              <BrainCircuit className="w-10 h-10 text-primary absolute inset-0 m-auto animate-pulse" />
+            </div>
+            <div className="text-center space-y-2">
+              <h2 className="text-xl font-black text-foreground uppercase tracking-widest">AI Neural Recalibration</h2>
+              <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
+                <Sparkles className="w-4 h-4 text-primary animate-bounce" />
+                <span>Adjusting your roadmap based on real-time performance...</span>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {showAdjustModal && (
           <motion.div className="fixed inset-0 bg-background/80 flex items-center justify-center z-50 p-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <motion.div className="glass-strong rounded-2xl p-8 max-w-md w-full" initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}>
