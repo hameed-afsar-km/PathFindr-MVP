@@ -100,46 +100,73 @@ export default function RoadmapView() {
         )}
       </AnimatePresence>
 
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="bento-card relative">
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
-              <Briefcase className="w-6 h-6 text-primary" />
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden p-8 rounded-3xl glass border-primary/20">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-background to-transparent z-0"></div>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              <Briefcase className="w-5 h-5 text-primary" />
+              <span className="text-primary font-mono text-sm tracking-widest uppercase">Active Roadmap</span>
+            </div>
+            <h1 className="text-3xl md:text-5xl font-extrabold text-foreground mb-4">
               {activeCareer.title}
             </h1>
-            <div className="flex flex-wrap items-center gap-3 mt-4 text-sm font-medium">
-              <span className="px-3 py-1 rounded-full glass shrink-0">Tasks Left: <span className="text-foreground">{tasksRemaining}</span></span>
-              <span className="px-3 py-1 rounded-full glass shrink-0">Days Left: <span className="text-foreground">{daysRemaining}</span></span>
-              <span className={`px-3 py-1 rounded-full shrink-0 ${paceClass} uppercase text-xs tracking-wider`}>{pace}</span>
-            </div>
-          </div>
-          <div className="flex flex-col gap-2 shrink-0">
-            <button onClick={() => setHomeTab('careers')} className="glass px-4 py-2 rounded-lg text-sm flex items-center gap-2 hover:border-primary/50 transition-all">
-              <ArrowRightLeft className="w-4 h-4 text-primary" /> Switch Career
-            </button>
-            <button onClick={() => { removeCareer(activeCareer.id); setHomeTab('dashboard'); }} className="glass px-4 py-2 rounded-lg text-sm flex items-center gap-2 hover:border-destructive/50 transition-all text-destructive">
-              <RefreshCw className="w-4 h-4" /> Reset Career
-            </button>
-          </div>
-        </div>
 
-        <div className="mt-6 flex flex-col md:flex-row gap-6">
-          <div className="flex-1">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-semibold text-foreground">Progress Completion</span>
-              <span className="text-sm text-primary font-mono">{activeCareer.progress}%</span>
-            </div>
-            <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-              <motion.div className="h-full progress-bar-fill" initial={{ width: 0 }} animate={{ width: `${activeCareer.progress}%` }} />
-            </div>
-            <div className="flex justify-between items-center mt-3 text-xs text-muted-foreground">
-              <span>Start: {new Date(activeCareer.startDate).toLocaleDateString()}</span>
-              <div className="flex items-center gap-2">
-                <span>Target: </span>
-                <input type="date" value={newTargetDate} onChange={handleTargetDateChange} className="bg-secondary rounded px-1 py-0.5" />
-                {newTargetDate && <button onClick={applyTargetDate} className="text-primary hover:underline">Apply</button>}
-                {!newTargetDate && <span>{new Date(activeCareer.targetDate).toLocaleDateString()}</span>}
+            <div className="flex flex-wrap items-center gap-4 text-sm font-medium mb-8">
+              <div className="flex flex-col">
+                <span className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Tasks Left</span>
+                <span className="text-xl text-foreground font-mono">{tasksRemaining}</span>
               </div>
+              <div className="w-px h-8 bg-border"></div>
+              <div className="flex flex-col">
+                <span className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Days Left</span>
+                <span className="text-xl text-foreground font-mono">{daysRemaining}</span>
+              </div>
+              <div className="w-px h-8 bg-border"></div>
+              <div className="flex flex-col">
+                <span className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Pace</span>
+                <span className={`px-3 py-1 mt-1 rounded-full shrink-0 ${paceClass} uppercase text-xs tracking-wider inline-block`}>{pace}</span>
+              </div>
+            </div>
+
+            <div className="max-w-xl">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-semibold text-foreground">Overall Completion</span>
+                <span className="text-sm text-primary font-mono">{activeCareer.progress}%</span>
+              </div>
+              <div className="h-2 w-full bg-secondary rounded-full overflow-hidden shadow-inner">
+                <motion.div className="h-full progress-bar-fill" initial={{ width: 0 }} animate={{ width: `${activeCareer.progress}%` }} transition={{ duration: 1 }} />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3 shrink-0 md:min-w-[280px]">
+            <div className="glass-strong p-4 rounded-xl space-y-3">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Start Date:</span>
+                <span className="text-foreground font-medium">{new Date(activeCareer.startDate).toLocaleDateString()}</span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Assumed Target:</span>
+                <span className="text-foreground font-medium">{new Date(activeCareer.targetDate).toLocaleDateString()}</span>
+              </div>
+
+              <div className="pt-3 mt-3 border-t border-border">
+                <span className="text-xs text-muted-foreground block mb-2">Alter Target Date</span>
+                <div className="flex items-center gap-2">
+                  <input type="date" value={newTargetDate} onChange={handleTargetDateChange} className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground flex-1 focus:outline-none focus:ring-1 focus:ring-primary/50" />
+                  {newTargetDate && <button onClick={applyTargetDate} className="bg-primary text-primary-foreground px-3 py-2 rounded-lg text-sm font-semibold">Apply</button>}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <button onClick={() => setHomeTab('careers')} className="flex-1 glass px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2 hover:border-primary/50 transition-all">
+                <ArrowRightLeft className="w-4 h-4 text-primary" /> Switch
+              </button>
+              <button onClick={() => { removeCareer(activeCareer.id); setHomeTab('dashboard'); }} className="flex-1 glass px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2 hover:border-destructive/50 transition-all text-destructive">
+                <RefreshCw className="w-4 h-4" /> Reset
+              </button>
             </div>
           </div>
         </div>
@@ -185,20 +212,35 @@ export default function RoadmapView() {
           const isPhaseComplete = phaseTasksCompleted === phase.tasks.length;
 
           return (
-            <motion.div key={phase.id} className="bento-card" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: pi * 0.05 }}>
-              <button onClick={() => setExpandedPhase(isExpanded ? null : phase.id)} className="w-full flex items-center justify-between">
-                <div className="flex items-center gap-3 text-left">
-                  {isPhaseComplete ? <CheckCircle2 className="w-6 h-6 text-success shrink-0" /> : <div className="w-6 h-6 rounded-full border-2 border-primary/50 shrink-0" />}
+            <motion.div key={phase.id} className="glass rounded-2xl overflow-hidden mb-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: pi * 0.05 }}>
+              <button
+                onClick={() => setExpandedPhase(isExpanded ? null : phase.id)}
+                className={`w-full flex items-center justify-between p-5 transition-colors ${isExpanded ? 'bg-background/40' : 'hover:bg-background/20'}`}
+              >
+                <div className="flex items-center gap-4 text-left">
+                  {isPhaseComplete ?
+                    <div className="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center shrink-0">
+                      <CheckCircle2 className="w-6 h-6 text-success" />
+                    </div>
+                    :
+                    <div className="w-10 h-10 rounded-full border-2 border-primary/30 flex items-center justify-center shrink-0">
+                      <span className="text-primary font-mono text-sm">{pi + 1}</span>
+                    </div>
+                  }
                   <div>
-                    <h3 className="font-semibold text-foreground text-lg">{phase.title}</h3>
-                    <p className="text-sm text-muted-foreground flex items-center gap-2">
-                      <Calendar className="w-3 h-3" /> Phase Target: {phase.tasks.length} {phase.tasks.length === 1 ? 'day' : 'days'}
+                    <h3 className={`font-semibold text-lg ${isPhaseComplete ? 'text-muted-foreground line-through decoration-success/50' : 'text-foreground'}`}>{phase.title}</h3>
+                    <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+                      <Calendar className="w-3.5 h-3.5" /> Phase Duration: {phase.tasks.length} {phase.tasks.length === 1 ? 'day' : 'days'}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-mono text-muted-foreground">{phaseTasksCompleted}/{phase.tasks.length}</span>
-                  {isExpanded ? <ChevronDown className="w-5 h-5 text-muted-foreground" /> : <ChevronRight className="w-5 h-5 text-muted-foreground" />}
+                <div className="flex items-center gap-4">
+                  <div className="text-right hidden sm:block">
+                    <span className="text-sm font-medium text-foreground">{phaseTasksCompleted} <span className="text-muted-foreground">/ {phase.tasks.length} tasks</span></span>
+                  </div>
+                  <div className={`p-2 rounded-full ${isExpanded ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground'}`}>
+                    {isExpanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+                  </div>
                 </div>
               </button>
 

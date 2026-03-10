@@ -49,6 +49,8 @@ export default function GoalSetting() {
 
 
     let targetDate: Date = customDateStr ? new Date(customDateStr) : new Date();
+    let daysRemaining = 1;
+
     if (!customDateStr) {
       switch (goal) {
         case 'basics': targetDate = estimates.basics; break;
@@ -56,9 +58,11 @@ export default function GoalSetting() {
         case 'job-ready': targetDate = estimates.jobReady; break;
         default: targetDate = estimates.jobReady; break;
       }
+      daysRemaining = Math.max(1, Math.ceil((targetDate.getTime() - Date.now()) / 86400000));
+    } else {
+      daysRemaining = Math.max(1, Math.ceil((targetDate.getTime() - Date.now()) / 86400000));
     }
 
-    const daysRemaining = Math.max(1, Math.ceil((targetDate.getTime() - Date.now()) / 86400000));
     const phases = generateRoadmap(careerId, daysRemaining, skillResult.level);
 
     // Get career title from mockAI
@@ -128,21 +132,39 @@ export default function GoalSetting() {
             <p className="text-muted-foreground mb-2">Your skill level: <span className="text-primary capitalize">{skillResult.level}</span></p>
             <p className="text-muted-foreground text-sm mb-8">Estimated timelines are adjusted based on your assessment.</p>
             <div className="space-y-3">
-              {goals.map(g => (
-                <motion.button
-                  key={g.key}
-                  onClick={() => handleGoalSelect(g.key)}
-                  className={`w-full text-left glass px-6 py-4 rounded-xl text-foreground hover:border-primary/50 transition-all ${selectedGoal === g.key ? 'border-primary glow-primary' : ''}`}
-                  whileHover={{ scale: 1.01, x: 4 }}
-                >
-                  <div className="font-semibold">{g.label}</div>
-                  {g.key !== 'custom' && (
-                    <div className="text-sm text-muted-foreground mt-1">
-                      Target: {estimates[g.key === 'job-ready' ? 'jobReady' : g.key as keyof typeof estimates]?.toLocaleDateString() || ''}
+              {goals.map(g => {
+                const estDate = g.key === 'job-ready' ? estimates.jobReady : estimates[g.key as keyof typeof estimates];
+                const days = estDate ? Math.max(1, Math.ceil((estDate.getTime() - Date.now()) / 86400000)) : 0;
+
+                return (
+                  <motion.button
+                    key={g.key}
+                    onClick={() => handleGoalSelect(g.key)}
+                    className={`w-full text-left glass relative overflow-hidden px-6 py-4 rounded-xl text-foreground hover:border-primary/50 transition-all ${selectedGoal === g.key ? 'border-primary glow-primary' : ''}`}
+                    whileHover={{ scale: 1.02, x: 4 }}
+                  >
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 relative z-10">
+                      <div>
+                        <div className="font-semibold text-lg">{g.label}</div>
+                        {g.key !== 'custom' && (
+                          <div className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+                            <span className="bg-secondary px-2 py-0.5 rounded text-primary font-mono">{days} Days</span>
+                            <span>Target: {estDate?.toLocaleDateString() || ''}</span>
+                          </div>
+                        )}
+                      </div>
+                      {g.key !== 'custom' && (
+                        <div className="hidden md:block text-right">
+                          <span className="text-xs uppercase tracking-widest text-muted-foreground opacity-50">Estimated</span>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </motion.button>
-              ))}
+                    {selectedGoal === g.key && (
+                      <motion.div className="absolute inset-0 bg-primary/10 -z-0" layoutId="goalBg" />
+                    )}
+                  </motion.button>
+                );
+              })}
             </div>
             {selectedGoal === 'custom' && (
               <motion.div className="mt-4 flex gap-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>

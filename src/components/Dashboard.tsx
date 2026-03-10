@@ -57,87 +57,91 @@ export default function Dashboard() {
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto">
       {/* Header */}
-      <motion.div className="mb-6" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-          Welcome back, <span className="gradient-text">{profile.username || 'Explorer'}</span>
-        </h1>
-        <p className="text-muted-foreground text-sm mt-1">Your daily progress overview</p>
+      <motion.div
+        className="mb-8 p-8 rounded-3xl relative overflow-hidden glass border-primary/20"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-accent/10 z-0"></div>
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,hsl(var(--primary)/0.2),transparent_50%)] z-0"></div>
+        <div className="relative z-10">
+          <h1 className="text-3xl md:text-5xl font-extrabold text-foreground tracking-tight">
+            Welcome back, <br className="hidden md:block" />
+            <span className="gradient-text">{profile.username || 'Explorer'}</span>
+          </h1>
+          <p className="text-muted-foreground text-lg mt-3">Ready to conquer your goals today?</p>
+        </div>
       </motion.div>
 
       {/* Bento Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Current Focus */}
-        <motion.div className="bento-card md:col-span-2 lg:col-span-1" custom={0} variants={cardVariants} initial="hidden" animate="visible">
-          <div className="flex items-center gap-2 mb-3">
-            <Target className="w-4 h-4 text-primary" />
-            <span className="text-xs text-muted-foreground uppercase tracking-wider font-mono">Current Focus</span>
-          </div>
-          <h3 className="text-xl font-bold text-foreground mb-2">{activeCareer.title}</h3>
-          <div className="flex items-center gap-4 text-sm">
-            <span className="text-muted-foreground">Level: <span className="text-primary capitalize">{activeCareer.level}</span></span>
-            <span className="text-muted-foreground">Score: <span className="text-primary">{activeCareer.skillScore}%</span></span>
-          </div>
-          <div className="mt-4 h-2 bg-secondary rounded-full overflow-hidden">
-            <motion.div className="h-full progress-bar-fill rounded-full" initial={{ width: 0 }} animate={{ width: `${activeCareer.progress}%` }} transition={{ duration: 1 }} />
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">{activeCareer.progress}% complete</p>
-        </motion.div>
-
-        {/* XP & Streak */}
-        <motion.div className="bento-card" custom={1} variants={cardVariants} initial="hidden" animate="visible">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-xp" />
-              <span className="text-xs text-muted-foreground uppercase tracking-wider font-mono">XP & Streak</span>
-            </div>
-          </div>
-          <div className="flex items-end gap-6">
+        <motion.div className="bento-card md:col-span-2 lg:col-span-2 relative overflow-hidden group" custom={0} variants={cardVariants} initial="hidden" animate="visible">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div className="relative z-10 flex flex-col h-full justify-between">
             <div>
-              <p className="text-3xl font-bold text-xp font-mono">{profile.xp}</p>
-              <p className="text-xs text-muted-foreground">Total XP</p>
-            </div>
-            <div>
-              <div className="flex items-center gap-1">
-                <Flame className="w-5 h-5 text-streak" />
-                <p className="text-3xl font-bold text-streak font-mono">{profile.streak}</p>
+              <div className="flex items-center gap-2 mb-4">
+                <Target className="w-5 h-5 text-primary" />
+                <span className="text-sm font-semibold text-primary uppercase tracking-widest">Current Focus</span>
               </div>
-              <p className="text-xs text-muted-foreground">Day Streak</p>
+              <h3 className="text-3xl font-bold text-foreground mb-2">{activeCareer.title}</h3>
+              <div className="flex items-center gap-4 text-sm mt-2 bg-background/50 inline-flex px-4 py-2 rounded-lg border border-border/50">
+                <span className="text-muted-foreground">Level: <span className="text-foreground capitalize font-medium">{activeCareer.level}</span></span>
+                <div className="w-1 h-1 rounded-full bg-border"></div>
+                <span className="text-muted-foreground">Score: <span className="text-foreground font-medium">{activeCareer.skillScore}%</span></span>
+              </div>
             </div>
-          </div>
-        </motion.div>
-
-        {/* Timeline Stats */}
-        <motion.div className="bento-card" custom={2} variants={cardVariants} initial="hidden" animate="visible">
-          <div className="flex items-center gap-2 mb-4">
-            <Clock className="w-4 h-4 text-accent" />
-            <span className="text-xs text-muted-foreground uppercase tracking-wider font-mono">Timeline</span>
-          </div>
-          <div className="flex items-end gap-6">
-            <div>
-              <p className="text-3xl font-bold text-foreground font-mono">{daysRemaining}</p>
-              <p className="text-xs text-muted-foreground">Days Left</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-foreground font-mono">{tasksRemaining}</p>
-              <p className="text-xs text-muted-foreground">Tasks Left</p>
+            <div className="mt-8">
+              <div className="flex justify-between text-sm mb-2 font-medium">
+                <span className="text-muted-foreground">Progress Completion</span>
+                <span className="text-primary">{activeCareer.progress}%</span>
+              </div>
+              <div className="h-3 bg-background rounded-full overflow-hidden shadow-inner">
+                <motion.div className="h-full progress-bar-fill rounded-full" initial={{ width: 0 }} animate={{ width: `${activeCareer.progress}%` }} transition={{ duration: 1, delay: 0.5 }} />
+              </div>
             </div>
           </div>
         </motion.div>
 
         {/* Pace Indicator */}
-        <motion.div className="bento-card" custom={3} variants={cardVariants} initial="hidden" animate="visible">
-          <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="w-4 h-4 text-primary" />
-            <span className="text-xs text-muted-foreground uppercase tracking-wider font-mono">Pace</span>
+        <motion.div className="bento-card flex flex-col items-center justify-center text-center relative overflow-hidden" custom={3} variants={cardVariants} initial="hidden" animate="visible">
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl"></div>
+          <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/20 mb-4">
+            <TrendingUp className="w-6 h-6 text-primary" />
           </div>
-          <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${paceConfig[pace].bg}`}>
-            <span className={`text-sm font-semibold ${paceConfig[pace].color}`}>{paceConfig[pace].label}</span>
+          <span className="text-xs text-muted-foreground uppercase tracking-wider font-mono mb-2">Pace</span>
+          <div className={`px-4 py-1.5 rounded-full ${paceConfig[pace].bg} mb-3`}>
+            <span className={`text-sm font-bold ${paceConfig[pace].color}`}>{paceConfig[pace].label}</span>
           </div>
-          <p className="text-xs text-muted-foreground mt-3">
-            {pace === 'ahead' ? 'Great work! You have extra time to deepen your knowledge.' :
-             pace === 'behind' ? 'Consider increasing your daily pace to hit your target.' :
-             'You\'re perfectly on schedule. Keep it up!'}
+          <p className="text-sm text-muted-foreground">
+            {pace === 'ahead' ? 'Great work! You have extra time.' :
+              pace === 'behind' ? 'Consider increasing your daily pace.' :
+                'You\'re perfectly on schedule.'}
           </p>
+        </motion.div>
+
+        {/* Stats Grid */}
+        <motion.div className="bento-card md:col-span-2 lg:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4 p-0 bg-transparent border-none shadow-none" custom={1} variants={cardVariants} initial="hidden" animate="visible">
+          <div className="glass rounded-2xl p-6 flex flex-col items-center justify-center text-center hover:border-primary/50 transition-colors">
+            <Zap className="w-6 h-6 text-xp mb-2" />
+            <p className="text-3xl font-bold text-foreground font-mono">{profile.xp}</p>
+            <p className="text-xs text-muted-foreground mt-1 uppercase tracking-widest">Total XP</p>
+          </div>
+          <div className="glass rounded-2xl p-6 flex flex-col items-center justify-center text-center hover:border-streak/50 transition-colors">
+            <Flame className="w-6 h-6 text-streak mb-2" />
+            <p className="text-3xl font-bold text-foreground font-mono">{profile.streak}</p>
+            <p className="text-xs text-muted-foreground mt-1 uppercase tracking-widest">Day Streak</p>
+          </div>
+          <div className="glass rounded-2xl p-6 flex flex-col items-center justify-center text-center hover:border-accent/50 transition-colors">
+            <Clock className="w-6 h-6 text-accent mb-2" />
+            <p className="text-3xl font-bold text-foreground font-mono">{daysRemaining}</p>
+            <p className="text-xs text-muted-foreground mt-1 uppercase tracking-widest">Days Left</p>
+          </div>
+          <div className="glass rounded-2xl p-6 flex flex-col items-center justify-center text-center hover:border-primary/50 transition-colors">
+            <Target className="w-6 h-6 text-primary mb-2" />
+            <p className="text-3xl font-bold text-foreground font-mono">{tasksRemaining}</p>
+            <p className="text-xs text-muted-foreground mt-1 uppercase tracking-widest">Tasks Left</p>
+          </div>
         </motion.div>
 
         {/* Daily Challenge */}
