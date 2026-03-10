@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
 import { Trash2, ArrowRightLeft, Star } from 'lucide-react';
+import { GlowingEffect } from './ui/glowing-effect';
 
 export default function CareersTab() {
   const { careers, activeCareer, setActiveCareer, removeCareer, setScreen } = useApp();
@@ -40,11 +41,13 @@ export default function CareersTab() {
             return (
               <motion.div
                 key={career.id}
-                className={`relative overflow-hidden bento-card flex flex-col justify-between ${isActive ? 'border-primary/50 shadow-[0_0_30px_rgba(var(--primary),0.15)] ring-1 ring-primary/20' : ''}`}
+                className={`relative overflow-hidden p-6 rounded-[2rem] border border-border/50 bg-background shadow-sm flex flex-col justify-between ${isActive ? 'ring-2 ring-primary/30' : ''}`}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
               >
+                <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={3} />
+
                 {isActive && (
                   <div className="absolute top-0 right-0 px-4 py-1.5 bg-primary/20 text-primary text-xs font-bold uppercase tracking-wider rounded-bl-xl z-20">
                     Active

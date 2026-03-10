@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
 import { User, Shield, AlertTriangle } from 'lucide-react';
+import { GlowingEffect } from './ui/glowing-effect';
 
 export default function ProfileTab() {
   const { profile, updateProfile, resetProgress, deleteAccount } = useApp();
@@ -17,8 +18,10 @@ export default function ProfileTab() {
       <h2 className="text-2xl font-bold text-foreground mb-6">Profile</h2>
 
       {/* User info */}
-      <motion.div className="bento-card mb-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <div className="flex items-center gap-2 mb-4">
+      <motion.div className="relative overflow-hidden p-6 rounded-[2rem] border border-border/50 bg-background shadow-sm mb-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+        <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={3} />
+        <div className="relative z-10 flex items-center gap-2 mb-4">
+
           <User className="w-4 h-4 text-primary" />
           <span className="text-xs text-muted-foreground uppercase tracking-wider font-mono">User Details</span>
         </div>
@@ -66,8 +69,10 @@ export default function ProfileTab() {
       </motion.div>
 
       {/* Security */}
-      <motion.div className="bento-card mb-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-        <div className="flex items-center gap-2 mb-4">
+      <motion.div className="relative overflow-hidden p-6 rounded-[2rem] border border-border/50 bg-background shadow-sm mb-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+        <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={3} />
+        <div className="relative z-10 flex items-center gap-2 mb-4">
+
           <Shield className="w-4 h-4 text-accent" />
           <span className="text-xs text-muted-foreground uppercase tracking-wider font-mono">Security</span>
         </div>
@@ -82,8 +87,10 @@ export default function ProfileTab() {
       </motion.div>
 
       {/* Danger zone */}
-      <motion.div className="bento-card border-destructive/20" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-        <div className="flex items-center gap-2 mb-4">
+      <motion.div className="relative overflow-hidden p-6 rounded-[2rem] border border-destructive/20 bg-background shadow-sm" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+        <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={3} />
+        <div className="relative z-10 flex items-center gap-2 mb-4">
+
           <AlertTriangle className="w-4 h-4 text-destructive" />
           <span className="text-xs text-destructive uppercase tracking-wider font-mono">Danger Zone</span>
         </div>

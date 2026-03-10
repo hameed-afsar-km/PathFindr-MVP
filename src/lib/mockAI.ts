@@ -70,32 +70,49 @@ function hashAnswers(answers: SurveyAnswer[]): number {
 }
 
 export function generateCareerMatches(answers: SurveyAnswer[]): { title: string; matchPercentage: number; justification: string; id: string }[] {
-  const hash = hashAnswers(answers);
-  const shuffled = [...CAREER_KEYS].sort((a, b) => {
-    const ha = (hash * a.length) % 100;
-    const hb = (hash * b.length) % 100;
-    return hb - ha;
-  });
-
   const interestText = answers.map(a => a.answer.toLowerCase()).join(' ');
 
-  return shuffled.slice(0, 3).map((key, i) => {
+  const scored = CAREER_KEYS.map(key => {
     const career = CAREER_DATABASE[key];
-    const relevance = career.skills.filter(s => interestText.includes(s.toLowerCase())).length;
-    const base = 85 - i * 8;
-    const matchPercentage = Math.min(98, base + relevance * 3 + (hash % 5));
+    let score = 50; // base score
+
+    // analyze skills
+    career.skills.forEach(skill => {
+      if (interestText.includes(skill.toLowerCase())) score += 15;
+    });
+
+    // analyze title keywords
+    if (interestText.includes(career.title.toLowerCase())) score += 20;
+
+    // contextual matching
+    if (interestText.includes('design') && key.includes('design')) score += 25;
+    if (interestText.includes('code') || interestText.includes('program')) {
+      if (key.includes('dev') || key.includes('engineer')) score += 20;
+    }
+    if (interestText.includes('data') && key.includes('data')) score += 25;
+    if (interestText.includes('security') && key.includes('cyber')) score += 25;
+    if (interestText.includes('manage') && key.includes('product')) score += 25;
+
+    return { key, score: Math.min(98, score) };
+  });
+
+  const sorted = scored.sort((a, b) => b.score - a.score);
+
+  return sorted.slice(0, 3).map((item, i) => {
+    const career = CAREER_DATABASE[item.key];
+    const matchPercentage = item.score;
 
     const justifications = [
-      `Your interests in ${answers[0]?.answer || 'technology'} align strongly with ${career.title}. This path leverages your analytical mindset.`,
-      `Based on your background and preferences, ${career.title} offers excellent growth potential matching your career drivers.`,
-      `Your skill profile suggests a natural aptitude for ${career.title}. The learning curve aligns with your experience level.`,
+      `Your deep interest in ${career.skills[0]} and related technologies makes ${career.title} an ideal match for your creative and technical profile.`,
+      `The survey indicates you have a strong affinity for ${career.skills[2] || 'problem solving'}, which is a core pillar of the ${career.title} role.`,
+      `We detected a significant overlap between your goals and the ${career.title} path, particularly in how you approach ${career.skills[1] || 'learning'}.`,
     ];
 
     return {
-      id: key,
+      id: item.key,
       title: career.title,
       matchPercentage,
-      justification: justifications[i],
+      justification: justifications[i] || `Based on your profile, ${career.title} aligns with your career trajectory.`,
     };
   });
 }
@@ -197,19 +214,36 @@ export function generateRoadmap(careerId: string, daysRemaining: number, level: 
       { action: "Review and refactor", details: "Improve code efficiency, readability, and overall quality." },
       { action: "Complete mini-project on", details: "Deliver a small, functional solution utilizing recent lessons." },
       { action: "Debug and test", details: "Ensure high reliability through edge-case testing and debugging." },
-      { action: "Publish and summarize", details: "Document your approach and make it accessible for presentation." }
+      { action: "Project presentation", details: "Document your approach and make it accessible for presentation." }
     ];
 
     for (let ti = 0; ti < taskCount && dayCounter <= daysRemaining; ti++) {
-      const variation = actions[ti % actions.length];
+      let variation = actions[ti % actions.length];
+      let isProject = false;
+      let title = `Task ${dayCounter}: ${variation.action} ${phaseName}`;
+      let description = `Deep dive into ${phaseName} - ${variation.details} This hands-on exercise solidifies your understanding for this topic.`;
+
+      // Inject Projects:
+      // Final task of phase = Milestone Project
+      if (ti === taskCount - 1) {
+        isProject = true;
+        title = `🔴 Milestone Project: Advanced ${phaseName} Implementation`;
+        description = `COMPREHENSIVE PROJECT: Build a production-grade application or system that demonstrates mastery of all concepts in ${phaseName}. This serves as your primary portfolio piece for this phase.`;
+      }
+      // Every 3rd task (approx weekly/2 per phase) = Mini Project
+      else if (ti > 0 && (ti % Math.max(3, Math.floor(taskCount / 3)) === 0)) {
+        isProject = true;
+        title = `🔸 Mini Project: Functional ${phaseName} Module`;
+        description = `PRACTICAL CHALLENGE: Create a working prototype or a focused module implementing specific ${phaseName} features discussed recently.`;
+      }
 
       tasks.push({
         id: `task-${pi}-${ti}`,
         day: dayCounter,
-        title: `Task ${dayCounter}: ${variation.action} ${phaseName}`,
-        description: `Deep dive into ${phaseName} - ${variation.details} This hands-on exercise solidifies your understanding for this topic.`,
-        objective: `${variation.action} ${phaseName.toLowerCase()}`,
-        youtubeLink: `https://www.youtube.com/results?search_query=${encodeURIComponent(career.title + ' ' + phaseName + ' tutorial')}`,
+        title: title,
+        description: description,
+        objective: isProject ? `Complete ${phaseName} project` : `${variation.action} ${phaseName.toLowerCase()}`,
+        youtubeLink: `https://www.youtube.com/results?search_query=${encodeURIComponent(career.title + ' ' + (isProject ? 'project' : phaseName) + ' tutorial')}`,
         completed: false,
         phaseId: `phase-${pi}`,
       });

@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
 import { Lock, CheckCircle2, Circle, ExternalLink, ChevronDown, ChevronRight, Search, Calendar, RefreshCw, Briefcase, Filter, ArrowRightLeft } from 'lucide-react';
+import { GlowingEffect } from './ui/glowing-effect';
 
 export default function RoadmapView() {
   const { activeCareer, profile, updateProfile, completeTask, clearCareerProgress, setHomeTab, updateCareer } = useApp();
@@ -138,7 +139,9 @@ export default function RoadmapView() {
         )}
       </AnimatePresence>
 
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden p-8 rounded-3xl glass border-primary/20">
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden p-8 rounded-[2rem] border border-border/50 bg-background shadow-sm">
+        <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={3} />
+
         <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-background to-transparent z-0"></div>
         <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6">
           <div className="flex-1">
@@ -210,10 +213,11 @@ export default function RoadmapView() {
         </div>
 
         {currentTask && (
-          <div className="mt-8 p-6 rounded-2xl border border-secondary bg-background shadow-lg relative z-20 flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
-            <div className="flex-1">
+          <div className="mt-8 p-6 rounded-2xl border border-secondary bg-background shadow-lg relative z-20 flex flex-col md:flex-row gap-6 justify-between items-start md:items-center overflow-hidden">
+            <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={3} />
+            <div className="relative z-10 flex-1">
               <p className="text-xs text-primary uppercase font-mono tracking-wider mb-2">Current Task Focus</p>
-              <h3 className="text-xl font-bold text-foreground mb-2">{currentTask.title}</h3>
+              <h3 className="text-xl font-bold text-foreground mb-1">{currentTask.title}</h3>
               <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{currentTask.description}</p>
               <div className="inline-flex bg-primary/10 px-3 py-2 rounded-lg border border-primary/20">
                 <p className="text-xs text-primary font-medium"><strong className="mr-1">Objective:</strong> {currentTask.objective}</p>
