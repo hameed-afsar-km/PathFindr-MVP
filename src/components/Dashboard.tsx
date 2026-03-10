@@ -2,11 +2,15 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useApp, HomeTab } from '@/context/AppContext';
 import { getPaceStatus, generateDailyChallenge } from '@/lib/mockAI';
-import { Flame, Target, Clock, TrendingUp, Zap, Trophy, ChevronRight, ArrowRightLeft } from 'lucide-react';
+import { Flame, Target, Clock, TrendingUp, Zap, Trophy, ChevronRight, ArrowRightLeft, CheckCircle2 } from 'lucide-react';
+import NewsHeadline from './NewsHeadline';
 
 export default function Dashboard() {
-  const { profile, activeCareer, completeDailyChallenge, setHomeTab, setScreen } = useApp();
+  const { profile, activeCareer, completeDailyChallenge, setHomeTab, setScreen, completedQuizzes } = useApp();
   const [challengeAnswer, setChallengeAnswer] = useState<number | null>(null);
+
+  const todayStr = new Date().toDateString();
+  const isCompletedToday = activeCareer && completedQuizzes[activeCareer.id] === todayStr;
 
   const challenge = useMemo(() => {
     if (!activeCareer) return null;
@@ -145,13 +149,20 @@ export default function Dashboard() {
         </motion.div>
 
         {/* Daily Challenge */}
-        <motion.div className="bento-card md:col-span-2 lg:col-span-2" custom={4} variants={cardVariants} initial="hidden" animate="visible">
+        <motion.div className="bento-card md:col-span-2 lg:col-span-2 transition-all" custom={4} variants={cardVariants} initial="hidden" animate="visible">
           <div className="flex items-center gap-2 mb-4">
             <Trophy className="w-4 h-4 text-xp" />
             <span className="text-xs text-muted-foreground uppercase tracking-wider font-mono">Daily Challenge</span>
             <span className="ml-auto text-xs text-xp font-mono">+50 XP</span>
           </div>
-          {challenge && (
+          {isCompletedToday ? (
+            <div className="flex flex-col items-center justify-center py-8 text-center bg-success/5 rounded-2xl border border-success/20">
+              <CheckCircle2 className="w-12 h-12 text-success mb-3 animate-bounce" />
+              <h4 className="text-xl font-bold text-foreground mb-1">Challenge Completed!</h4>
+              <p className="text-sm text-muted-foreground">You've mastered today's insight for this career.</p>
+              <p className="text-xs text-success font-medium mt-4 uppercase tracking-[0.2em]">Come back tomorrow</p>
+            </div>
+          ) : challenge && (
             <>
               <p className="text-foreground font-semibold mb-4">{challenge.question}</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -184,6 +195,11 @@ export default function Dashboard() {
               )}
             </>
           )}
+        </motion.div>
+
+        {/* News Headline Component */}
+        <motion.div custom={6} variants={cardVariants} initial="hidden" animate="visible" className="lg:col-span-1">
+          <NewsHeadline />
         </motion.div>
 
         {/* Quick Actions */}

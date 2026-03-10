@@ -68,6 +68,7 @@ interface AppState {
   careers: CareerPath[];
   activeCareer: CareerPath | null;
   dailyChallenge: DailyChallenge | null;
+  completedQuizzes: Record<string, string>; // careerId -> dateString
 }
 
 interface AppContextType extends AppState {
@@ -106,6 +107,7 @@ const defaultState: AppState = {
   careers: [],
   activeCareer: null,
   dailyChallenge: null,
+  completedQuizzes: {},
 };
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -201,12 +203,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }), []);
 
   const completeDailyChallenge = useCallback(() => setState(s => {
+    if (!s.activeCareer) return s;
     const today = new Date().toDateString();
     const yesterday = new Date(Date.now() - 86400000).toDateString();
-    const newStreak = s.profile.lastStreakDate === yesterday ? s.profile.streak + 1 : 1;
+    const newStreak = s.profile.lastStreakDate === yesterday ? s.profile.streak + 1 : s.profile.lastStreakDate === today ? s.profile.streak : 1;
+
     return {
       ...s,
-      dailyChallenge: s.dailyChallenge ? { ...s.dailyChallenge, completedToday: true } : null,
+      completedQuizzes: { ...s.completedQuizzes, [s.activeCareer.id]: today },
       profile: { ...s.profile, xp: s.profile.xp + 50, streak: newStreak, lastStreakDate: today },
     };
   }), []);

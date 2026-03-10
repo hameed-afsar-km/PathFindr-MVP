@@ -150,23 +150,37 @@ export function MagnificationDock({
     items,
     className = '',
     spring = { mass: 0.1, stiffness: 150, damping: 12 },
-    magnification = 65,
-    distance = 150,
-    panelHeight = 58,
+    magnification: initialMagnification = 65,
+    distance: initialDistance = 150,
+    panelHeight: initialPanelHeight = 58,
     dockHeight = 120,
-    baseItemSize = 44
+    baseItemSize: initialBaseItemSize = 44
 }: DockProps) {
     const mouseX = useMotionValue(Infinity);
     const isHovered = useMotionValue(0);
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    const magnification = isMobile ? initialMagnification * 0.8 : initialMagnification;
+    const distance = isMobile ? initialDistance * 0.6 : initialDistance;
+    const panelHeight = isMobile ? initialPanelHeight * 0.9 : initialPanelHeight;
+    const baseItemSize = isMobile ? initialBaseItemSize * 0.9 : initialBaseItemSize;
 
     const maxHeight = useMemo(() => Math.max(dockHeight, magnification + magnification / 2 + 4), [dockHeight, magnification]);
     const heightRow = useTransform(isHovered, [0, 1], [panelHeight, maxHeight]);
     const height = useSpring(heightRow, spring);
 
     return (
-        <motion.div style={{ height, scrollbarWidth: 'none' }} className="flex w-full items-center justify-center">
+        <motion.div style={{ height, scrollbarWidth: 'none' }} className="flex w-full items-center justify-center px-1">
             <motion.div
                 onMouseMove={({ pageX }) => {
+                    if (isMobile) return;
                     isHovered.set(1);
                     mouseX.set(pageX);
                 }}
@@ -174,7 +188,7 @@ export function MagnificationDock({
                     isHovered.set(0);
                     mouseX.set(Infinity);
                 }}
-                className={`${className} flex items-end w-fit gap-2 md:gap-3 rounded-2xl md:rounded-3xl border border-white/10 dark:border-white/5 bg-background/60 backdrop-blur-xl pb-2 px-3 shadow-2xl`}
+                className={`${className} flex items-end w-fit gap-2 md:gap-3 rounded-2xl md:rounded-3xl border border-white/10 dark:border-white/5 bg-background/60 backdrop-blur-xl pb-2 px-3 shadow-2xl relative`}
                 style={{ height: panelHeight }}
                 role="toolbar"
                 aria-label="Application dock"
@@ -192,7 +206,7 @@ export function MagnificationDock({
                         isActive={item.isActive}
                     >
                         <DockIcon isActive={item.isActive}>{item.icon}</DockIcon>
-                        <DockLabel>{item.label}</DockLabel>
+                        {!isMobile && <DockLabel>{item.label}</DockLabel>}
                     </DockItem>
                 ))}
             </motion.div>
