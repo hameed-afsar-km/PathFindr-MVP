@@ -5,101 +5,63 @@ import { motion } from "framer-motion";
 export const AnimatedBackground = () => {
     return (
         <div className="fixed inset-0 -z-50 overflow-hidden bg-background pointer-events-none">
-            {/* Subtle Gradient Orbs */}
-            <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{
-                    opacity: [0.1, 0.2, 0.1],
-                    scale: [1, 1.1, 1],
-                    x: [0, 50, 0],
-                    y: [0, 30, 0],
-                }}
-                transition={{
-                    duration: 15,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                }}
-                className="absolute -top-[10%] -left-[10%] w-[60%] h-[60%] rounded-full bg-primary/10 blur-[120px]"
-            />
+            {/* Layer 1: Animated Linear Gradient (High Performance) */}
+            <div className="absolute inset-0 animate-gradient-slow opacity-30" />
 
-            <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{
-                    opacity: [0.05, 0.15, 0.05],
-                    scale: [1, 1.2, 1],
-                    x: [0, -40, 0],
-                    y: [0, 60, 0],
-                }}
-                transition={{
-                    duration: 20,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 2,
-                }}
-                className="absolute top-[20%] -right-[10%] w-[50%] h-[50%] rounded-full bg-accent/10 blur-[120px]"
-            />
+            {/* Layer 2: Mesh Gradient for Depth (High Performance Blur) */}
+            <div className="mesh-gradient" />
 
-            <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{
-                    opacity: [0.08, 0.12, 0.08],
-                    scale: [1, 1.1, 1],
-                    x: [0, 30, 0],
-                    y: [0, -50, 0],
-                }}
-                transition={{
-                    duration: 18,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 5,
-                }}
-                className="absolute -bottom-[10%] left-[20%] w-[45%] h-[45%] rounded-full bg-primary/5 blur-[100px]"
-            />
-
-            {/* Moving Beams */}
+            {/* Layer 3: Optimized Moving Beams */}
             <motion.div
                 animate={{
                     translateX: ["-100%", "200%"],
                 }}
                 transition={{
-                    duration: 10,
+                    duration: 15,
                     repeat: Infinity,
                     ease: "linear",
-                    repeatDelay: 3
+                    repeatDelay: 5
                 }}
-                className="absolute top-0 left-0 w-[40%] h-full bg-gradient-to-r from-transparent via-primary/5 to-transparent -skew-x-12 pointer-events-none"
+                style={{
+                    willChange: "transform",
+                    background: "linear-gradient(to right, transparent, hsla(var(--primary) / 0.05), transparent)"
+                }}
+                className="absolute top-0 left-0 w-[40%] h-full -skew-x-12"
             />
 
-            {/* Particles */}
-            {[...Array(8)].map((_, i) => (
+            {/* Layer 4: Minimal Particles */}
+            {[...Array(4)].map((_, i) => (
                 <motion.div
                     key={i}
                     initial={{
                         opacity: 0,
-                        x: Math.random() * 100 + "%",
-                        y: Math.random() * 100 + "%"
+                        x: (i * 25) + "%",
+                        y: "110%"
                     }}
                     animate={{
-                        opacity: [0.05, 0.2, 0.05],
-                        y: ["-10%", "110%"],
-                        x: i % 2 === 0 ? ["0%", "5%"] : ["5%", "0%"]
+                        opacity: [0, 0.15, 0],
+                        y: ["110%", "-10%"],
                     }}
                     transition={{
-                        duration: 20 + Math.random() * 10,
+                        duration: 20 + i * 5,
                         repeat: Infinity,
                         ease: "linear",
-                        delay: Math.random() * 10
+                        delay: i * 4
                     }}
-                    className="absolute w-[2px] h-[2px] bg-primary/20 rounded-full blur-[1px]"
+                    style={{
+                        willChange: "transform",
+                        left: (i * 25) + "%"
+                    }}
+                    className="absolute w-[1px] h-[60px] bg-gradient-to-b from-primary/20 to-transparent"
                 />
             ))}
 
-            {/* Grid Pattern Overlay */}
+            {/* Static Overlays */}
             <div
-                className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay"
+                className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.02] mix-blend-overlay"
             />
             <div
-                className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_100%)]"
+                className="absolute inset-0 bg-[linear-gradient(to_right,#80808005_1px,transparent_1px),linear-gradient(to_bottom,#80808005_1px,transparent_1px)] bg-[size:80px_80px] [mask-image:radial-gradient(ellipse_100%_100%_at_50%_0%,#000_70%,transparent_100%)]"
             />
         </div>
     );

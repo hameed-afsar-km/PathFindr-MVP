@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
-import { User, Shield, AlertTriangle, Trash2, Key, Smartphone, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { User, Shield, AlertTriangle, Trash2, Key, Smartphone, RefreshCw, CheckCircle2, Edit2, Save, X, Sparkles } from 'lucide-react';
 import { GlowingEffect } from './ui/glowing-effect';
 
 export default function ProfileTab() {
@@ -10,6 +10,19 @@ export default function ProfileTab() {
   const [showDelete, setShowDelete] = useState(false);
   const [resetConfirmText, setResetConfirmText] = useState('');
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedName, setEditedName] = useState(profile.username);
+
+  const handleSave = () => {
+    updateProfile({ username: editedName });
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setEditedName(profile.username);
+    setIsEditing(false);
+  };
 
   return (
     <div className="p-4 md:p-6 max-w-2xl mx-auto space-y-8">
@@ -22,27 +35,74 @@ export default function ProfileTab() {
         {/* User Info Section */}
         <motion.section
           className="relative"
-          whileHover={{ y: -4, scale: 1.005 }}
+          whileHover={!isEditing ? { y: -4, scale: 1.005 } : {}}
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
         >
           <div className="relative rounded-[2rem] border border-border/50 p-2 md:p-3">
             <GlowingEffect spread={40} glow={true} disabled={false} proximity={64} inactiveZone={0.01} borderWidth={3} />
             <div className="relative z-10 p-6 md:p-8 rounded-[1.75rem] bg-background overflow-hidden">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2.5 bg-primary/10 rounded-xl">
-                  <User className="w-5 h-5 text-primary" />
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-primary/10 rounded-xl">
+                    <User className="w-5 h-5 text-primary" />
+                  </div>
+                  <h2 className="text-xl font-bold text-foreground">User Information</h2>
                 </div>
-                <h2 className="text-xl font-bold text-foreground">User Information</h2>
+
+                {!isEditing ? (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="flex items-center gap-2 px-3 py-1.5 glass rounded-lg text-[10px] font-bold text-primary uppercase tracking-widest hover:bg-primary/10 transition-all border border-primary/20"
+                  >
+                    <Edit2 className="w-3 h-3" />
+                    Edit Details
+                  </button>
+                ) : (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleSave}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-[10px] font-bold uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20"
+                    >
+                      <Save className="w-3 h-3" />
+                      Save
+                    </button>
+                    <button
+                      onClick={handleCancel}
+                      className="flex items-center gap-2 px-3 py-1.5 glass rounded-lg text-[10px] font-bold text-muted-foreground uppercase tracking-widest hover:bg-secondary/50 transition-all"
+                    >
+                      <X className="w-3 h-3" />
+                      Cancel
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
+                <div className="space-y-2 md:col-span-2">
                   <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] ml-1">Username</label>
-                  <div className="glass px-4 py-3 rounded-xl border-border/50 flex items-center justify-between">
-                    <p className="text-foreground font-medium">{profile.username}</p>
-                    <span className="text-[10px] text-primary/50 font-mono">Verified</span>
-                  </div>
+                  {isEditing ? (
+                    <motion.div
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="relative"
+                    >
+                      <input
+                        type="text"
+                        value={editedName}
+                        onChange={(e) => setEditedName(e.target.value)}
+                        className="w-full bg-secondary/30 border border-primary/30 rounded-xl px-4 py-3 text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                        placeholder="Enter your name..."
+                        autoFocus
+                      />
+                    </motion.div>
+                  ) : (
+                    <div className="glass px-4 py-3 rounded-xl border-border/50 flex items-center justify-between">
+                      <p className="text-foreground font-medium">{profile.username}</p>
+                      <span className="text-[10px] text-primary/50 font-mono">Verified Account</span>
+                    </div>
+                  )}
                 </div>
+
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] ml-1">Member Since</label>
                   <div className="glass px-4 py-3 rounded-xl border-border/50">
@@ -51,20 +111,33 @@ export default function ProfileTab() {
                     </p>
                   </div>
                 </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] ml-1">Current Plan</label>
+                  <div className="glass px-4 py-3 rounded-xl border-border/50">
+                    <p className="text-primary font-bold uppercase tracking-widest text-xs flex items-center gap-2">
+                      <Sparkles className="w-3 h-3" />
+                      {profile.plan} Access
+                    </p>
+                  </div>
+                </div>
+
                 <div className="space-y-2 md:col-span-2">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] ml-1">Account Stats</label>
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] ml-1">Performance Stats</label>
                   <div className="grid grid-cols-3 gap-3">
                     <div className="glass p-3 rounded-xl text-center">
-                      <p className="text-xs text-muted-foreground mb-1 uppercase tracking-tighter">Total XP</p>
-                      <p className="text-lg font-bold text-xp font-mono">{profile.xp}</p>
+                      <p className="text-[9px] text-muted-foreground mb-1 uppercase tracking-tighter font-black">Total XP</p>
+                      <p className="text-lg font-bold text-xp font-mono leading-none">{profile.xp}</p>
                     </div>
                     <div className="glass p-3 rounded-xl text-center">
-                      <p className="text-xs text-muted-foreground mb-1 uppercase tracking-tighter">Streak</p>
-                      <p className="text-lg font-bold text-streak font-mono">{profile.streak}</p>
+                      <p className="text-[9px] text-muted-foreground mb-1 uppercase tracking-tighter font-black">Streak</p>
+                      <p className="text-lg font-bold text-streak font-mono leading-none">{profile.streak}d</p>
                     </div>
                     <div className="glass p-3 rounded-xl text-center">
-                      <p className="text-xs text-muted-foreground mb-1 uppercase tracking-tighter">Plan</p>
-                      <p className="text-lg font-bold text-primary capitalize">{profile.plan}</p>
+                      <p className="text-[9px] text-muted-foreground mb-1 uppercase tracking-tighter font-black">Level</p>
+                      <p className="text-lg font-bold text-primary font-mono leading-none">
+                        {Math.floor(profile.xp / 100) + 1}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -170,7 +243,7 @@ export default function ProfileTab() {
                         >
                           Execute Reset
                         </button>
-                        <button onClick={() => { setShowReset(false); setResetConfirmText(''); }} className="flex-1 py-2.5 glass text-[10px] font-bold text-foreground uppercase tracking-widest">Abord</button>
+                        <button onClick={() => { setShowReset(false); setResetConfirmText(''); }} className="flex-1 py-2.5 glass text-[10px] font-bold text-foreground uppercase tracking-widest">Abort</button>
                       </div>
                     </div>
                   </motion.div>
