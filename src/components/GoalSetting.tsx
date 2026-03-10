@@ -40,7 +40,7 @@ export default function GoalSetting() {
     if (customDate) setStep('custom-goal');
   };
 
-  const handleFinish = (goal: string, customDateStr: string) => {
+  const handleFinish = async (goal: string, customDateStr: string) => {
     let targetDate: Date = customDateStr ? new Date(customDateStr) : new Date();
     let daysRemaining = 1;
 
@@ -51,12 +51,10 @@ export default function GoalSetting() {
         case 'job-ready': targetDate = estimates.jobReady; break;
         default: targetDate = estimates.jobReady; break;
       }
-      daysRemaining = Math.max(1, Math.ceil((targetDate.getTime() - Date.now()) / 86400000));
-    } else {
-      daysRemaining = Math.max(1, Math.ceil((targetDate.getTime() - Date.now()) / 86400000));
     }
+    daysRemaining = Math.max(1, Math.ceil((targetDate.getTime() - Date.now()) / 86400000));
 
-    const phases = generateRoadmap(careerId, daysRemaining, skillResult.level);
+    const phases = await generateRoadmap(careerId, daysRemaining, skillResult.level, goal);
 
     // Get career title from mockAI
     const careerTitles: Record<string, string> = {

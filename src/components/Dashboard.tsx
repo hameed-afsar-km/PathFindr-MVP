@@ -1,6 +1,6 @@
 import { useMemo, useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useApp, HomeTab } from '@/context/AppContext';
+import { useApp, HomeTab, DailyChallenge } from '@/context/AppContext';
 import { getPaceStatus, generateDailyChallenge } from '@/lib/mockAI';
 import {
   Flame, Target, Clock, TrendingUp, Zap, Trophy, ChevronRight, ArrowRightLeft,
@@ -29,9 +29,12 @@ export default function Dashboard() {
   const todayStr = new Date().toDateString();
   const isCompletedToday = activeCareer && completedQuizzes[activeCareer.id] === todayStr;
 
-  const challenge = useMemo(() => {
-    if (!activeCareer) return null;
-    return generateDailyChallenge(activeCareer.id);
+  const [challenge, setChallenge] = useState<DailyChallenge | null>(null);
+
+  useEffect(() => {
+    if (activeCareer) {
+      generateDailyChallenge(activeCareer.id).then(setChallenge);
+    }
   }, [activeCareer]);
 
   if (!activeCareer) {

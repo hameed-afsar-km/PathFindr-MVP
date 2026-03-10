@@ -1,4 +1,5 @@
 import { SurveyAnswer, CareerPath, Phase, Task, DailyChallenge } from '@/context/AppContext';
+import { askGemini } from './gemini';
 
 const CAREER_DATABASE: Record<string, { title: string; skills: string[]; phases: string[] }> = {
   'frontend-dev': {
@@ -69,45 +70,51 @@ function hashAnswers(answers: SurveyAnswer[]): number {
   return answers.reduce((acc, a) => acc + a.answer.length * (a.questionIndex + 1), 0);
 }
 
-export function generateCareerMatches(answers: SurveyAnswer[]): { title: string; matchPercentage: number; justification: string; id: string }[] {
-  const interestText = answers.map(a => a.answer.toLowerCase()).join(' ');
+export async function generateCareerMatches(answers: SurveyAnswer[]): Promise<{ title: string; matchPercentage: number; justification: string; id: string }[]> {
+  const interestText = answers.map(a => `${a.questionIndex}: ${a.answer}`).join(' | ');
 
+  const prompt = `
+    Based on these 11 detailed survey answers representing a user's personality, goals, and constraints: "${interestText}", 
+    suggest the absolute best top 3 tech careers from this list: ${CAREER_KEYS.join(", ")}.
+    
+    CRITICAL: Analyze the user's specific constraints and drivers (the 11th input) deeply. 
+    Return ONLY a JSON array of objects with this structure:
+    [{ "id": "career-id", "title": "Career Title", "matchPercentage": 95.5, "justification": "Short 2 sentence explanation" }]
+    Ensure matchPercentage is a number between 0-100 and rounded to 2 decimal points.
+  `;
+
+  const geminiResult = await askGemini(prompt);
+  if (geminiResult && Array.isArray(geminiResult)) return geminiResult;
+
+  // Fallback to local logic (already exists below)
+  return localGenerateCareerMatches(answers);
+}
+
+function localGenerateCareerMatches(answers: SurveyAnswer[]): { title: string; matchPercentage: number; justification: string; id: string }[] {
+  const interestText = answers.map(a => a.answer.toLowerCase()).join(' ');
   const scored = CAREER_KEYS.map(key => {
     const career = CAREER_DATABASE[key];
-    let score = 50; // base score
-
-    // analyze skills
+    let score = 50;
     career.skills.forEach(skill => {
       if (interestText.includes(skill.toLowerCase())) score += 15;
     });
-
-    // analyze title keywords
     if (interestText.includes(career.title.toLowerCase())) score += 20;
-
-    // contextual matching
     if (interestText.includes('design') && key.includes('design')) score += 25;
     if (interestText.includes('code') || interestText.includes('program')) {
       if (key.includes('dev') || key.includes('engineer')) score += 20;
     }
-    if (interestText.includes('data') && key.includes('data')) score += 25;
-    if (interestText.includes('security') && key.includes('cyber')) score += 25;
-    if (interestText.includes('manage') && key.includes('product')) score += 25;
-
-    return { key, score: Math.min(98, score) };
+    return { key, score: Number(Math.min(98, score).toFixed(2)) };
   });
 
   const sorted = scored.sort((a, b) => b.score - a.score);
-
   return sorted.slice(0, 3).map((item, i) => {
     const career = CAREER_DATABASE[item.key];
     const matchPercentage = item.score;
-
     const justifications = [
       `Your deep interest in ${career.skills[0]} and related technologies makes ${career.title} an ideal match for your creative and technical profile.`,
       `The survey indicates you have a strong affinity for ${career.skills[2] || 'problem solving'}, which is a core pillar of the ${career.title} role.`,
       `We detected a significant overlap between your goals and the ${career.title} path, particularly in how you approach ${career.skills[1] || 'learning'}.`,
     ];
-
     return {
       id: item.key,
       title: career.title,
@@ -157,15 +164,29 @@ const QUESTION_BANK: Record<string, { question: string, options: string[], corre
   ]
 };
 
-export function generateSkillQuestions(careerId: string): { question: string; options: string[]; correctIndex: number; level: string }[] {
+export async function generateSkillQuestions(careerId: string): Promise<{ question: string; options: string[]; correctIndex: number; level: string }[]> {
   const career = CAREER_DATABASE[careerId];
   if (!career) return [];
 
+  const prompt = `
+    Generate 9 multiple choice questions for a skill assessment in ${career.title}.
+    Structure: 3 basic, 3 intermediate, 3 advanced.
+    Return ONLY a JSON array: [{ "question": "...", "options": ["A", "B", "C", "D"], "correctIndex": 0, "level": "basic" }]
+    Make them technical and professional.
+  `;
+
+  const geminiResult = await askGemini(prompt);
+  if (geminiResult && Array.isArray(geminiResult)) return geminiResult;
+
+  // Local fallback
+  return localGenerateSkillQuestions(careerId);
+}
+
+function localGenerateSkillQuestions(careerId: string): { question: string; options: string[]; correctIndex: number; level: string }[] {
+  const career = CAREER_DATABASE[careerId];
+  if (!career) return [];
   const levels = ['basic', 'basic', 'basic', 'intermediate', 'intermediate', 'intermediate', 'advanced', 'advanced', 'advanced'];
-
-  // Shuffle utility
   const shuffle = (array: any[]) => [...array].sort(() => Math.random() - 0.5);
-
   const basicQ = shuffle(QUESTION_BANK.basic);
   const intQ = shuffle(QUESTION_BANK.intermediate);
   const advQ = shuffle(QUESTION_BANK.advanced);
@@ -176,7 +197,6 @@ export function generateSkillQuestions(careerId: string): { question: string; op
       if (level === 'basic') qObj = basicQ[qi % basicQ.length];
       if (level === 'intermediate') qObj = intQ[qi % intQ.length];
       if (level === 'advanced') qObj = advQ[qi % advQ.length];
-
       return {
         question: `[${level.toUpperCase()}] Regarding ${skill}: ${qObj!.question}`,
         options: qObj!.options,
@@ -187,17 +207,47 @@ export function generateSkillQuestions(careerId: string): { question: string; op
   );
 }
 
-export function calculateSkillScore(correct: number, total: number): { score: number; level: 'beginner' | 'intermediate' | 'advanced' } {
-  const pct = Number(((correct / total) * 100).toFixed(2));
-  if (pct >= 70) return { score: pct, level: 'advanced' };
-  if (pct >= 40) return { score: pct, level: 'intermediate' };
-  return { score: pct, level: 'beginner' };
+export function calculateSkillScore(lastCorrectIndex: number, total: number): { score: number; level: 'beginner' | 'intermediate' | 'advanced' } {
+  // If they stopped at index N, it means they got N questions right before failing.
+  // 0-2 correct: Beginner
+  // 3-5 correct: Intermediate
+  // 6-9 correct: Advanced
+  const score = Number(((lastCorrectIndex / total) * 100).toFixed(2));
+
+  if (lastCorrectIndex <= 2) return { score, level: 'beginner' };
+  if (lastCorrectIndex <= 5) return { score, level: 'intermediate' };
+  return { score, level: 'advanced' };
 }
 
-export function generateRoadmap(careerId: string, daysRemaining: number, level: string): Phase[] {
+export async function generateRoadmap(careerId: string, daysRemaining: number, level: string, goal: string): Promise<Phase[]> {
   const career = CAREER_DATABASE[careerId];
   if (!career) return [];
 
+  const prompt = `
+    Generate a 100% custom, non-predefined learning roadmap for ${career.title} specifically for a ${level} level student aiming for a ${goal} outcome.
+    Available time: ${daysRemaining} days.
+    
+    Structure:
+    - 5 Phases with distinct thematic objectives.
+    - Daily micro-tasks that are actionable and specific.
+    - At least 2 "Mini-Project" milestones that build a specific tool/feature.
+    - 1 final "Capstone Project" that is complex and portfolio-ready.
+    
+    CRITICAL: Each task description must be unique and pedagogical. 
+    YouTube links must be relevant search queries.
+    Return ONLY valid JSON: [{ "id": "phase-0", "title": "...", "tasks": [{ "id": "t1", "day": 1, "title": "...", "description": "...", "objective": "...", "youtubeLink": "...", "completed": false, "phaseId": "phase-0", "isProject": false }] }]
+  `;
+
+  const geminiResult = await askGemini(prompt);
+  if (geminiResult && Array.isArray(geminiResult)) return geminiResult;
+
+  // Local fallback
+  return localGenerateRoadmap(careerId, daysRemaining);
+}
+
+function localGenerateRoadmap(careerId: string, daysRemaining: number): Phase[] {
+  const career = CAREER_DATABASE[careerId];
+  if (!career) return [];
   const phaseCount = career.phases.length;
   const daysPerPhase = Math.max(1, Math.floor(daysRemaining / phaseCount));
   let dayCounter = 1;
@@ -205,7 +255,6 @@ export function generateRoadmap(careerId: string, daysRemaining: number, level: 
   return career.phases.map((phaseName, pi) => {
     const taskCount = pi === phaseCount - 1 ? daysRemaining - dayCounter + 1 : daysPerPhase;
     const tasks: Task[] = [];
-
     const actions = [
       { action: "Learn principles of", details: "Focus on theoretical concepts and background." },
       { action: "Set up tools for", details: "Configure your development environment and necessary dependencies." },
@@ -216,62 +265,50 @@ export function generateRoadmap(careerId: string, daysRemaining: number, level: 
       { action: "Debug and test", details: "Ensure high reliability through edge-case testing and debugging." },
       { action: "Project presentation", details: "Document your approach and make it accessible for presentation." }
     ];
-
     for (let ti = 0; ti < taskCount && dayCounter <= daysRemaining; ti++) {
       let variation = actions[ti % actions.length];
-      let isProject = false;
-      let title = `Task ${dayCounter}: ${variation.action} ${phaseName}`;
-      let description = `Deep dive into ${phaseName} - ${variation.details} This hands-on exercise solidifies your understanding for this topic.`;
-
-      // Inject Projects:
-      // Final task of phase = Milestone Project
-      if (ti === taskCount - 1) {
-        isProject = true;
-        title = `🔴 Milestone Project: Advanced ${phaseName} Implementation`;
-        description = `COMPREHENSIVE PROJECT: Build a production-grade application or system that demonstrates mastery of all concepts in ${phaseName}. This serves as your primary portfolio piece for this phase.`;
-      }
-      // Every 3rd task (approx weekly/2 per phase) = Mini Project
-      else if (ti > 0 && (ti % Math.max(3, Math.floor(taskCount / 3)) === 0)) {
-        isProject = true;
-        title = `🔸 Mini Project: Functional ${phaseName} Module`;
-        description = `PRACTICAL CHALLENGE: Create a working prototype or a focused module implementing specific ${phaseName} features discussed recently.`;
-      }
-
+      let isProject = ti === taskCount - 1 || (ti > 0 && ti % 5 === 0);
       tasks.push({
         id: `task-${pi}-${ti}`,
         day: dayCounter,
-        title: title,
-        description: description,
+        title: isProject ? `🔴 Project: ${phaseName}` : `Task ${dayCounter}: ${variation.action} ${phaseName}`,
+        description: `Deep dive into ${phaseName} - ${variation.details}`,
         objective: isProject ? `Complete ${phaseName} project` : `${variation.action} ${phaseName.toLowerCase()}`,
-        youtubeLink: `https://www.youtube.com/results?search_query=${encodeURIComponent(career.title + ' ' + (isProject ? 'project' : phaseName) + ' tutorial')}`,
+        youtubeLink: `https://www.youtube.com/results?search_query=${encodeURIComponent(career.title + ' ' + phaseName)}`,
         completed: false,
         phaseId: `phase-${pi}`,
       });
       dayCounter++;
     }
-
-    return {
-      id: `phase-${pi}`,
-      title: `Phase ${pi + 1}: ${phaseName}`,
-      tasks,
-    };
+    return { id: `phase-${pi}`, title: `Phase ${pi + 1}: ${phaseName}`, tasks };
   });
 }
 
-export function generateDailyChallenge(careerId: string): DailyChallenge {
+export async function generateDailyChallenge(careerId: string): Promise<DailyChallenge> {
+  const career = CAREER_DATABASE[careerId];
+  if (!career) return localGenerateDailyChallenge(careerId);
+
+  const prompt = `
+    Generate a daily technical interview question for a ${career.title} role.
+    Return ONLY a JSON object: { "question": "...", "options": ["A", "B", "C", "D"], "correctIndex": 0, "explanation": "..." }
+  `;
+
+  const geminiResult = await askGemini(prompt);
+  if (geminiResult && geminiResult.question) {
+    return { ...geminiResult, completedToday: false };
+  }
+
+  return localGenerateDailyChallenge(careerId);
+}
+
+function localGenerateDailyChallenge(careerId: string): DailyChallenge {
   const career = CAREER_DATABASE[careerId];
   const skill = career?.skills[Math.floor(Math.random() * (career?.skills.length || 1))] || 'Programming';
-
   return {
     question: `Which of the following best describes a core concept in ${skill}?`,
-    options: [
-      `Fundamental principle of ${skill}`,
-      `Common design pattern`,
-      `Performance optimization technique`,
-      `Testing methodology`,
-    ],
+    options: [`Fundamental principle of ${skill}`, `Common design pattern`, `Performance optimization technique`, `Testing methodology`],
     correctIndex: Math.floor(Math.random() * 4),
-    explanation: `Understanding ${skill} fundamentals is crucial for mastering this career path. This concept forms the backbone of professional practice.`,
+    explanation: `Understanding ${skill} fundamentals is crucial for mastering this career path.`,
     completedToday: false,
   };
 }
@@ -284,11 +321,20 @@ export function getPaceStatus(daysRemaining: number, tasksRemaining: number): 'a
 
 export function getDateEstimates(level: 'beginner' | 'intermediate' | 'advanced') {
   const now = new Date();
-  const multiplier = level === 'advanced' ? 0.5 : level === 'intermediate' ? 0.75 : 1;
+
+  // Base durations in days
+  const base = {
+    beginner: { basics: 30, intermediate: 90, jobReady: 180 },
+    intermediate: { basics: 10, intermediate: 45, jobReady: 120 },
+    advanced: { basics: 5, intermediate: 20, jobReady: 60 },
+  };
+
+  const estimates = base[level];
+
   return {
-    basics: new Date(now.getTime() + 30 * multiplier * 86400000),
-    intermediate: new Date(now.getTime() + 90 * multiplier * 86400000),
-    jobReady: new Date(now.getTime() + 180 * multiplier * 86400000),
+    basics: new Date(now.getTime() + estimates.basics * 86400000),
+    intermediate: new Date(now.getTime() + estimates.intermediate * 86400000),
+    jobReady: new Date(now.getTime() + estimates.jobReady * 86400000),
   };
 }
 

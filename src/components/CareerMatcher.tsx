@@ -17,7 +17,7 @@ export default function CareerMatcher() {
   const { surveyAnswers, setScreen } = useApp();
   const [loading, setLoading] = useState(true);
   const [loadingText, setLoadingText] = useState(loadingTexts[0]);
-  const [matches, setMatches] = useState<ReturnType<typeof generateCareerMatches>>([]);
+  const [matches, setMatches] = useState<{ title: string; matchPercentage: number; justification: string; id: string }[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<{ title: string; id: string }[]>([]);
   const [excluded, setExcluded] = useState<string[]>([]);
@@ -30,13 +30,16 @@ export default function CareerMatcher() {
       if (i < loadingTexts.length) setLoadingText(loadingTexts[i]);
     }, 500);
 
-    const timer = setTimeout(() => {
-      setMatches(generateCareerMatches(surveyAnswers));
+    const load = async () => {
+      const results = await generateCareerMatches(surveyAnswers);
+      setMatches(results);
       setLoading(false);
       clearInterval(interval);
-    }, 2500);
+    };
 
-    return () => { clearTimeout(timer); clearInterval(interval); };
+    load();
+
+    return () => { clearInterval(interval); };
   }, [surveyAnswers]);
 
   const handleSearch = (q: string) => {

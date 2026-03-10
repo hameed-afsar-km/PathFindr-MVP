@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
 import { generateSkillQuestions, calculateSkillScore } from '@/lib/mockAI';
@@ -8,32 +8,58 @@ import { Brain, Sparkles, Timer, CheckCircle2, XCircle } from 'lucide-react';
 export default function SkillAssessment() {
   const { setScreen } = useApp();
   const careerId = localStorage.getItem('pathfindr-selected-career') || 'frontend-dev';
-  const questions = generateSkillQuestions(careerId);
+
+  const [questions, setQuestions] = useState<any[]>([]);
   const [currentQ, setCurrentQ] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [answered, setAnswered] = useState(false);
   const [selectedIdx, setSelectedIdx] = useState(-1);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    generateSkillQuestions(careerId).then(qs => {
+      setQuestions(qs);
+      setLoading(false);
+    });
+  }, [careerId]);
 
   const handleAnswer = (idx: number) => {
     if (answered) return;
     setSelectedIdx(idx);
     setAnswered(true);
-    const isCorrect = idx === questions[currentQ].correctIndex;
+    const currentQuestion = questions[currentQ];
+    const isCorrect = idx === currentQuestion.correctIndex;
+
+    // Determine if we should move to next or end
+    const isLast = currentQ === questions.length - 1;
+
     if (isCorrect) setCorrect(c => c + 1);
 
     setTimeout(() => {
-      // End immediately if incorrect or is last question
-      if (isCorrect && currentQ < questions.length - 1) {
+      if (isCorrect && !isLast) {
+        // Move to next question
         setCurrentQ(currentQ + 1);
         setAnswered(false);
         setSelectedIdx(-1);
       } else {
-        const result = calculateSkillScore(correct + (isCorrect ? 1 : 0), questions.length);
+        // If wrong OR last, the assessment stops.
+        // If wrong, the points earned are only for previously correct answers.
+        const finalCorrectCount = isCorrect ? (currentQ + 1) : currentQ;
+        const result = calculateSkillScore(finalCorrectCount, questions.length);
         localStorage.setItem('pathfindr-skill-score', JSON.stringify(result));
         setScreen('goal-setting');
       }
-    }, 1200); // Slightly longer for "wow" effect of seeing correct/incorrect
+    }, 1200);
   };
+
+  if (loading) return (
+    <div className="fixed inset-0 bg-background flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <Brain className="w-12 h-12 text-primary animate-pulse" />
+        <p className="text-xs font-bold uppercase tracking-[0.3em] text-primary">Generating Neural Assessment...</p>
+      </div>
+    </div>
+  );
 
   const q = questions[currentQ];
   if (!q) return null;
@@ -95,8 +121,8 @@ export default function SkillAssessment() {
                 <div className="relative z-10 p-10 md:p-14 rounded-[2.5rem] bg-background overflow-hidden space-y-10">
                   <div className="space-y-4">
                     <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em] animate-in fade-in slide-in-from-left-4 ${q.level === 'advanced' ? 'bg-destructive/10 text-destructive border border-destructive/20' :
-                        q.level === 'intermediate' ? 'bg-warning/10 text-warning border border-warning/20' :
-                          'bg-success/10 text-success border border-success/20'
+                      q.level === 'intermediate' ? 'bg-warning/10 text-warning border border-warning/20' :
+                        'bg-success/10 text-success border border-success/20'
                       }`}>
                       <Sparkles className="w-3 h-3" />
                       {q.level} proficiency
