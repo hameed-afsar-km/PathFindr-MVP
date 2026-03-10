@@ -64,7 +64,7 @@ export default function CareersTab() {
                               {career.level}
                             </span>
                             <span className="bg-primary/10 px-2.5 py-1 rounded text-[10px] text-primary uppercase tracking-wider font-bold font-mono">
-                              {career.skillScore}% Score
+                              {typeof career.skillScore === 'number' ? career.skillScore.toFixed(2) : career.skillScore}% Score
                             </span>
                           </div>
                         </div>

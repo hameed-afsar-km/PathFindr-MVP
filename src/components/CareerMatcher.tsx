@@ -210,7 +210,7 @@ export default function CareerMatcher() {
                     <div className="text-right">
                       <span className="block text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">Match Index</span>
                       <span className="text-3xl font-black text-primary font-mono tabular-nums leading-none">
-                        {match.matchPercentage}%
+                        {typeof match.matchPercentage === 'number' ? match.matchPercentage.toFixed(2) : match.matchPercentage}%
                       </span>
                     </div>
                   </div>

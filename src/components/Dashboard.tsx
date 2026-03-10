@@ -1,18 +1,30 @@
-import { useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useMemo, useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useApp, HomeTab } from '@/context/AppContext';
 import { getPaceStatus, generateDailyChallenge } from '@/lib/mockAI';
 import {
   Flame, Target, Clock, TrendingUp, Zap, Trophy, ChevronRight, ArrowRightLeft,
-  CheckCircle2, User, Sparkles, Code, ClipboardList, Briefcase, Brain
+  CheckCircle2, User, Sparkles, Code, ClipboardList, Briefcase, Brain, ChevronDown
 } from 'lucide-react';
 import NewsHeadline from './NewsHeadline';
 import { GlowingEffect } from './ui/glowing-effect';
 import { cn } from '@/lib/utils';
 
 export default function Dashboard() {
-  const { profile, activeCareer, completeDailyChallenge, setHomeTab, setScreen, completedQuizzes } = useApp();
+  const { profile, activeCareer, careers, setActiveCareer, completeDailyChallenge, setHomeTab, setScreen, completedQuizzes } = useApp();
   const [challengeAnswer, setChallengeAnswer] = useState<number | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const todayStr = new Date().toDateString();
   const isCompletedToday = activeCareer && completedQuizzes[activeCareer.id] === todayStr;
@@ -72,7 +84,7 @@ export default function Dashboard() {
 
       {/* 1. Welcome back (Top Left, 2 cols) */}
       <motion.div
-        className="md:col-span-2 relative h-full min-h-[220px]"
+        className={cn("md:col-span-2 relative h-full min-h-[220px]", isDropdownOpen && "z-50")}
         custom={1}
         variants={cardVariants}
         initial="hidden"
@@ -82,7 +94,7 @@ export default function Dashboard() {
       >
         <div className="relative h-full rounded-[2.5rem] border border-border/50 p-1 md:p-2">
           <GlowingEffect spread={100} glow={true} disabled={false} proximity={128} inactiveZone={0.01} borderWidth={3} />
-          <div className="relative h-full rounded-[2.25rem] bg-background p-8 overflow-hidden">
+          <div className={cn("relative h-full rounded-[2.25rem] bg-background p-8", !isDropdownOpen && "overflow-hidden")}>
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
               <div className="flex items-center gap-6">
                 <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-primary to-accent p-[3px] shadow-2xl shadow-primary/20">
@@ -92,12 +104,66 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <h2 className="text-3xl md:text-5xl font-black text-foreground tracking-tighter mb-2 italic">
-                    Welcome back, <span className="text-primary">{profile.username.split(' ')[0]}</span>
+                    Welcome Back, <span className="text-primary">{profile.username.split(' ')[0]}</span>.
                   </h2>
-                  <p className="text-muted-foreground font-medium flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-                    Ready to level up your {activeCareer.title} skills today?
+                  <p className="text-muted-foreground font-medium mb-4">
+                    Ready to level up your skills today?
                   </p>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <span className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/60">Currently focusing on:</span>
+                    <div className="relative" ref={dropdownRef}>
+                      <button
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        className="flex items-center gap-3 px-4 py-2 bg-secondary/30 hover:bg-secondary/50 border border-border/50 rounded-xl transition-all group"
+                      >
+                        <span className="text-sm font-bold text-primary">{activeCareer.title}</span>
+                        <ChevronDown className={cn("w-4 h-4 text-primary/60 transition-transform duration-300", isDropdownOpen && "rotate-180")} />
+                      </button>
+
+                      <AnimatePresence>
+                        {isDropdownOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                            className="absolute top-full left-0 mt-3 w-64 glass rounded-2xl overflow-hidden z-50 border border-border/50 shadow-2xl"
+                          >
+                            <div className="p-2 space-y-1">
+                              {careers.map((career) => (
+                                <button
+                                  key={career.id}
+                                  onClick={() => {
+                                    setActiveCareer(career.id);
+                                    setIsDropdownOpen(false);
+                                  }}
+                                  className={cn(
+                                    "w-full text-left px-4 py-3 rounded-xl text-xs font-bold transition-all flex items-center justify-between group",
+                                    career.id === activeCareer.id
+                                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                                      : "hover:bg-secondary text-foreground"
+                                  )}
+                                >
+                                  {career.title}
+                                  {career.id === activeCareer.id && <CheckCircle2 className="w-4 h-4" />}
+                                </button>
+                              ))}
+                              <div className="h-px bg-border/50 my-1" />
+                              <button
+                                onClick={() => {
+                                  setScreen('onboarding');
+                                  setIsDropdownOpen(false);
+                                }}
+                                className="w-full text-left px-4 py-3 rounded-xl text-xs font-bold text-accent hover:bg-accent/10 transition-all flex items-center gap-2"
+                              >
+                                <span>+</span> Add New Path
+                              </button>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
