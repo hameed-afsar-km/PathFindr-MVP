@@ -6,55 +6,55 @@
 
 @layer base {
   :root {
-    --background: 220 15% 6%;
-    --foreground: 210 20% 92%;
+    --background: 255 45% 12%;
+    --foreground: 210 20% 98%;
 
-    --card: 220 14% 10%;
-    --card-foreground: 210 20% 92%;
+    --card: 255 40% 16%;
+    --card-foreground: 210 20% 98%;
 
-    --popover: 220 14% 10%;
-    --popover-foreground: 210 20% 92%;
+    --popover: 255 40% 16%;
+    --popover-foreground: 210 20% 98%;
 
-    --primary: 165 80% 48%;
-    --primary-foreground: 220 15% 6%;
+    --primary: 260 100% 70%;
+    --primary-foreground: 255 45% 12%;
 
-    --secondary: 220 14% 14%;
-    --secondary-foreground: 210 20% 85%;
+    --secondary: 255 35% 22%;
+    --secondary-foreground: 210 20% 98%;
 
-    --muted: 220 12% 16%;
-    --muted-foreground: 215 15% 55%;
+    --muted: 255 30% 20%;
+    --muted-foreground: 255 20% 65%;
 
-    --accent: 270 70% 60%;
-    --accent-foreground: 210 20% 95%;
+    --accent: 310 100% 65%;
+    --accent-foreground: 210 20% 98%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 210 20% 95%;
 
-    --border: 220 12% 18%;
-    --input: 220 12% 18%;
-    --ring: 165 80% 48%;
+    --border: 255 35% 26%;
+    --input: 255 35% 26%;
+    --ring: 260 100% 70%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 220 14% 8%;
-    --sidebar-foreground: 210 20% 85%;
-    --sidebar-primary: 165 80% 48%;
-    --sidebar-primary-foreground: 220 15% 6%;
-    --sidebar-accent: 220 14% 14%;
-    --sidebar-accent-foreground: 210 20% 85%;
-    --sidebar-border: 220 12% 18%;
-    --sidebar-ring: 165 80% 48%;
+    --sidebar-background: 255 45% 12%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 260 100% 70%;
+    --sidebar-primary-foreground: 255 45% 12%;
+    --sidebar-accent: 255 35% 22%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 255 35% 26%;
+    --sidebar-ring: 260 100% 70%;
 
     /* Custom tokens */
-    --glass-bg: 220 14% 10% / 0.6;
-    --glass-border: 220 12% 22%;
+    --glass-bg: 255 40% 16% / 0.6;
+    --glass-border: 255 35% 26%;
     --glass-blur: 20px;
-    --glow-primary: 165 80% 48%;
-    --glow-accent: 270 70% 60%;
+    --glow-primary: 260 100% 70%;
+    --glow-accent: 310 100% 65%;
     --warning: 38 92% 50%;
-    --warning-foreground: 220 15% 6%;
+    --warning-foreground: 255 45% 12%;
     --success: 142 71% 45%;
-    --success-foreground: 220 15% 6%;
+    --success-foreground: 255 45% 12%;
     --xp-color: 45 93% 58%;
     --streak-color: 16 85% 56%;
   }
