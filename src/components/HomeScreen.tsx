@@ -9,6 +9,7 @@ import Simulations from './Simulations';
 import CareersTab from './CareersTab';
 import ProfileTab from './ProfileTab';
 import Chatbot from './Chatbot';
+import MagnificationDock from './MagnificationDock';
 import { LayoutDashboard, Map, Dumbbell, MessageSquare, Gamepad2, Briefcase, UserCircle, MessageCircle } from 'lucide-react';
 
 const tabs: { key: HomeTab; label: string; icon: React.ElementType }[] = [
@@ -68,30 +69,25 @@ export default function HomeScreen() {
         <MessageCircle className="w-6 h-6" />
       </button>
 
-      {/* Bottom nav */}
-      <nav className="glass-strong border-t border-border px-2 py-2 flex items-center justify-around shrink-0">
-        {tabs.map(tab => {
-          const isActive = homeTab === tab.key;
-          const Icon = tab.icon;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setHomeTab(tab.key)}
-              className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition-all ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-                }`}
-            >
-              <Icon className="w-5 h-5" />
-              <span className="text-[10px] font-medium">{tab.label}</span>
-              {isActive && (
-                <motion.div
-                  className="w-1 h-1 rounded-full bg-primary"
-                  layoutId="tab-indicator"
-                />
-              )}
-            </button>
-          );
-        })}
-      </nav>
+      {/* Bottom nav using MagnificationDock */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 pb-4 pt-10 pointer-events-none flex justify-center bg-gradient-to-t from-background via-background/80 to-transparent">
+        <div className="pointer-events-auto">
+          <MagnificationDock
+            items={tabs.map(tab => {
+              const Icon = tab.icon;
+              return {
+                icon: <Icon size={20} />,
+                label: tab.label,
+                onClick: () => setHomeTab(tab.key),
+                isActive: homeTab === tab.key
+              };
+            })}
+            panelHeight={64}
+            baseItemSize={48}
+            magnification={70}
+          />
+        </div>
+      </div>
     </div>
   );
 }
