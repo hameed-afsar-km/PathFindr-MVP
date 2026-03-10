@@ -80,6 +80,7 @@ interface AppContextType extends AppState {
   setActiveCareer: (id: string) => void;
   removeCareer: (id: string) => void;
   updateCareer: (id: string, updates: Partial<CareerPath>) => void;
+  clearCareerProgress: (id: string) => void;
   completeTask: (careerId: string, taskId: string) => void;
   completeDailyChallenge: () => void;
   resetProgress: () => void;
@@ -114,13 +115,8 @@ function loadState(): AppState {
     const saved = localStorage.getItem('pathfindr-state');
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (parsed.careers && parsed.careers.length > 0) {
-        return { ...defaultState, ...parsed, screen: 'home' };
-      }
-      if (parsed.profile?.username) {
-        return { ...defaultState, ...parsed, screen: 'onboarding' };
-      }
-      return { ...defaultState, ...parsed, screen: 'auth' };
+      // Always show splash on app launch
+      return { ...defaultState, ...parsed, screen: 'splash' };
     }
   } catch (e) {
     console.error('Error loading state:', e);
@@ -175,6 +171,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return { ...s, careers, activeCareer };
   }), []);
 
+  const clearCareerProgress = useCallback((id: string) => setState(s => {
+    const careers = s.careers.map(c => {
+      if (c.id !== id) return c;
+      const phases = c.phases.map(p => ({
+        ...p,
+        tasks: p.tasks.map(t => ({ ...t, completed: false }))
+      }));
+      return { ...c, phases, progress: 0 };
+    });
+    const activeCareer = s.activeCareer?.id === id ? careers.find(c => c.id === id) || null : s.activeCareer;
+    return { ...s, careers, activeCareer };
+  }), []);
+
   const completeTask = useCallback((careerId: string, taskId: string) => setState(s => {
     const careers = s.careers.map(c => {
       if (c.id !== careerId) return c;
@@ -218,7 +227,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   return (
     <AppContext.Provider value={{
       ...state, setScreen, setHomeTab, updateProfile, addSurveyAnswer, setSurveyAnswers,
-      addCareer, setActiveCareer, removeCareer, updateCareer, completeTask,
+      addCareer, setActiveCareer, removeCareer, updateCareer, clearCareerProgress, completeTask,
       completeDailyChallenge, resetProgress, deleteAccount,
     }}>
       {children}

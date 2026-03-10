@@ -47,7 +47,17 @@ function ParticleField() {
 }
 
 export default function SplashScreen() {
-  const { setScreen } = useApp();
+  const { setScreen, careers, profile } = useApp();
+
+  const handleBegin = () => {
+    if (careers && careers.length > 0) {
+      setScreen('home');
+    } else if (profile?.username) {
+      setScreen('onboarding');
+    } else {
+      setScreen('auth');
+    }
+  };
 
   return (
     <motion.div
@@ -88,7 +98,7 @@ export default function SplashScreen() {
         </motion.p>
 
         <motion.button
-          onClick={() => setScreen('auth')}
+          onClick={handleBegin}
           className="glass glow-primary px-10 py-4 rounded-2xl text-primary font-semibold text-lg hover:scale-105 transition-transform duration-300"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

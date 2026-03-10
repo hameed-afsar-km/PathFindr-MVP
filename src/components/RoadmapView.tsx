@@ -4,11 +4,21 @@ import { useApp } from '@/context/AppContext';
 import { Lock, CheckCircle2, Circle, ExternalLink, ChevronDown, ChevronRight, Search, Calendar, RefreshCw, Briefcase, Filter, ArrowRightLeft } from 'lucide-react';
 
 export default function RoadmapView() {
-  const { activeCareer, profile, updateProfile, completeTask, removeCareer, setHomeTab, updateCareer } = useApp();
+  const { activeCareer, profile, updateProfile, completeTask, clearCareerProgress, setHomeTab, updateCareer } = useApp();
   const [expandedPhase, setExpandedPhase] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showAdjustModal, setShowAdjustModal] = useState<{ type: 'completed-phase' | 'target-date', dr: number, tr: number } | null>(null);
   const [newTargetDate, setNewTargetDate] = useState('');
+
+  const filteredPhases = useMemo(() => {
+    if (!activeCareer) return [];
+    if (!searchQuery) return activeCareer.phases;
+    const q = searchQuery.toLowerCase();
+    return activeCareer.phases.map(p => ({
+      ...p,
+      tasks: p.tasks.filter(t => t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q))
+    })).filter(p => p.tasks.length > 0);
+  }, [activeCareer, searchQuery]);
 
   if (!activeCareer) return <div className="p-6 text-muted-foreground">No active career selected.</div>;
 
@@ -58,15 +68,6 @@ export default function RoadmapView() {
     console.log(`Applying adjustment strategy: ${strategy}`);
     setShowAdjustModal(null);
   };
-
-  const filteredPhases = useMemo(() => {
-    if (!searchQuery) return activeCareer.phases;
-    const q = searchQuery.toLowerCase();
-    return activeCareer.phases.map(p => ({
-      ...p,
-      tasks: p.tasks.filter(t => t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q))
-    })).filter(p => p.tasks.length > 0);
-  }, [activeCareer.phases, searchQuery]);
 
   return (
     <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-6">
@@ -164,8 +165,8 @@ export default function RoadmapView() {
               <button onClick={() => setHomeTab('careers')} className="flex-1 glass px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2 hover:border-primary/50 transition-all">
                 <ArrowRightLeft className="w-4 h-4 text-primary" /> Switch
               </button>
-              <button onClick={() => { removeCareer(activeCareer.id); setHomeTab('dashboard'); }} className="flex-1 glass px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2 hover:border-destructive/50 transition-all text-destructive">
-                <RefreshCw className="w-4 h-4" /> Reset
+              <button onClick={() => { clearCareerProgress(activeCareer.id); }} className="flex-1 glass px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2 hover:border-destructive/50 transition-all text-destructive">
+                <RefreshCw className="w-4 h-4" /> Reset Progress
               </button>
             </div>
           </div>
