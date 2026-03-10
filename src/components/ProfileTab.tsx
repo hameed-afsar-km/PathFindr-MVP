@@ -9,6 +9,8 @@ export default function ProfileTab() {
   const [showDelete, setShowDelete] = useState(false);
   const [editUsername, setEditUsername] = useState(false);
   const [newUsername, setNewUsername] = useState(profile.username);
+  const [resetConfirmText, setResetConfirmText] = useState('');
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
   return (
     <div className="p-4 md:p-6 max-w-2xl mx-auto">
@@ -101,25 +103,47 @@ export default function ProfileTab() {
         </div>
 
         {showReset && (
-          <div className="mt-4 p-4 bg-warning/10 rounded-lg border border-warning/20">
-            <p className="text-sm text-foreground mb-3">This will wipe all tasks and career data. Are you sure?</p>
+          <div className="mt-4 p-4 bg-warning/10 rounded-lg border border-warning/20 flex flex-col gap-3">
+            <p className="text-sm text-foreground">This will wipe all tasks and career data. Type <strong className="text-warning font-mono">RESET</strong> to confirm. Are you sure?</p>
+            <input
+              type="text"
+              placeholder="Type RESET"
+              value={resetConfirmText}
+              onChange={e => setResetConfirmText(e.target.value.toUpperCase())}
+              className="bg-secondary border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-warning/50 text-foreground font-mono"
+            />
             <div className="flex gap-2">
-              <button onClick={() => { resetProgress(); setShowReset(false); }} className="px-4 py-2 bg-warning text-warning-foreground rounded-lg text-sm font-semibold">
+              <button
+                disabled={resetConfirmText !== 'RESET'}
+                onClick={() => { resetProgress(); setShowReset(false); setResetConfirmText(''); }}
+                className="px-4 py-2 bg-warning text-warning-foreground rounded-lg text-sm font-semibold disabled:opacity-50"
+              >
                 Yes, Reset
               </button>
-              <button onClick={() => setShowReset(false)} className="px-4 py-2 glass text-sm text-foreground">Cancel</button>
+              <button onClick={() => { setShowReset(false); setResetConfirmText(''); }} className="px-4 py-2 glass text-sm text-foreground">Cancel</button>
             </div>
           </div>
         )}
 
         {showDelete && (
-          <div className="mt-4 p-4 bg-destructive/10 rounded-lg border border-destructive/20">
-            <p className="text-sm text-foreground mb-3">This will permanently delete your account. This cannot be undone.</p>
+          <div className="mt-4 p-4 bg-destructive/10 rounded-lg border border-destructive/20 flex flex-col gap-3">
+            <p className="text-sm text-foreground">This will permanently delete your account. This cannot be undone. Type <strong className="text-destructive font-mono">DELETE</strong> to confirm.</p>
+            <input
+              type="text"
+              placeholder="Type DELETE"
+              value={deleteConfirmText}
+              onChange={e => setDeleteConfirmText(e.target.value.toUpperCase())}
+              className="bg-secondary border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-destructive/50 text-foreground font-mono"
+            />
             <div className="flex gap-2">
-              <button onClick={() => { deleteAccount(); setShowDelete(false); }} className="px-4 py-2 bg-destructive text-destructive-foreground rounded-lg text-sm font-semibold">
+              <button
+                disabled={deleteConfirmText !== 'DELETE'}
+                onClick={() => { deleteAccount(); setShowDelete(false); setDeleteConfirmText(''); }}
+                className="px-4 py-2 bg-destructive text-destructive-foreground rounded-lg text-sm font-semibold disabled:opacity-50"
+              >
                 Yes, Delete
               </button>
-              <button onClick={() => setShowDelete(false)} className="px-4 py-2 glass text-sm text-foreground">Cancel</button>
+              <button onClick={() => { setShowDelete(false); setDeleteConfirmText(''); }} className="px-4 py-2 glass text-sm text-foreground">Cancel</button>
             </div>
           </div>
         )}

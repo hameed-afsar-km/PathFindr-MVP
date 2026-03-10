@@ -9,6 +9,8 @@ export default function RoadmapView() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showAdjustModal, setShowAdjustModal] = useState<{ type: 'completed-phase' | 'target-date', dr: number, tr: number } | null>(null);
   const [newTargetDate, setNewTargetDate] = useState('');
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [resetConfirmText, setResetConfirmText] = useState('');
 
   const filteredPhases = useMemo(() => {
     if (!activeCareer) return [];
@@ -101,6 +103,41 @@ export default function RoadmapView() {
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {showResetConfirm && (
+          <motion.div className="fixed inset-0 bg-background/80 flex items-center justify-center z-50 p-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div className="glass-strong rounded-2xl p-8 max-w-md w-full border border-destructive/20" initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}>
+              <h3 className="text-xl font-bold text-foreground mb-4">Reset Progress?</h3>
+              <p className="text-muted-foreground mb-6">
+                This will clear all your progress for this career. Type <strong className="text-destructive font-mono">RESET</strong> to proceed.
+              </p>
+              <input
+                type="text"
+                placeholder="Type RESET"
+                value={resetConfirmText}
+                onChange={e => setResetConfirmText(e.target.value.toUpperCase())}
+                className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-destructive/50 mb-6 font-mono text-foreground"
+              />
+              <div className="flex gap-3">
+                <button
+                  disabled={resetConfirmText !== 'RESET'}
+                  onClick={() => { clearCareerProgress(activeCareer.id); setShowResetConfirm(false); setResetConfirmText(''); }}
+                  className="flex-1 bg-destructive text-destructive-foreground px-4 py-3 rounded-xl font-semibold disabled:opacity-50 transition-opacity"
+                >
+                  Reset Progress
+                </button>
+                <button
+                  onClick={() => { setShowResetConfirm(false); setResetConfirmText(''); }}
+                  className="flex-1 glass px-4 py-3 rounded-xl font-semibold hover:bg-secondary transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden p-8 rounded-3xl glass border-primary/20">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-background to-transparent z-0"></div>
         <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6">
@@ -165,7 +202,7 @@ export default function RoadmapView() {
               <button onClick={() => setHomeTab('careers')} className="flex-1 glass px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2 hover:border-primary/50 transition-all">
                 <ArrowRightLeft className="w-4 h-4 text-primary" /> Switch
               </button>
-              <button onClick={() => { clearCareerProgress(activeCareer.id); }} className="flex-1 glass px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2 hover:border-destructive/50 transition-all text-destructive">
+              <button onClick={() => { setShowResetConfirm(true); }} className="flex-1 glass px-4 py-2 rounded-lg text-sm flex items-center justify-center gap-2 hover:border-destructive/50 transition-all text-destructive">
                 <RefreshCw className="w-4 h-4" /> Reset Progress
               </button>
             </div>

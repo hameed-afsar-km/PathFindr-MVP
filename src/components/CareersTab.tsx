@@ -1,9 +1,12 @@
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
 import { Trash2, ArrowRightLeft, Star } from 'lucide-react';
 
 export default function CareersTab() {
   const { careers, activeCareer, setActiveCareer, removeCareer, setScreen } = useApp();
+  const [careerToDelete, setCareerToDelete] = useState<string | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
   return (
     <div className="p-4 md:p-6 max-w-5xl mx-auto">
@@ -98,7 +101,7 @@ export default function CareersTab() {
                         </div>
                       )}
                       <button
-                        onClick={() => removeCareer(career.id)}
+                        onClick={() => setCareerToDelete(career.id)}
                         className="px-4 py-2.5 glass rounded-xl text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors flex items-center justify-center"
                         title="Delete path"
                       >
@@ -112,6 +115,41 @@ export default function CareersTab() {
           })}
         </div>
       )}
+
+      <AnimatePresence>
+        {careerToDelete && (
+          <motion.div className="fixed inset-0 bg-background/80 flex items-center justify-center z-50 p-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div className="glass-strong rounded-2xl p-8 max-w-md w-full border border-destructive/20" initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}>
+              <h3 className="text-xl font-bold text-foreground mb-4">Delete Career Path?</h3>
+              <p className="text-muted-foreground mb-6">
+                This action cannot be undone. Type <strong className="text-destructive font-mono">DELETE</strong> to proceed.
+              </p>
+              <input
+                type="text"
+                placeholder="Type DELETE"
+                value={deleteConfirmText}
+                onChange={e => setDeleteConfirmText(e.target.value.toUpperCase())}
+                className="w-full bg-secondary border border-border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-destructive/50 mb-6 font-mono text-foreground"
+              />
+              <div className="flex gap-3">
+                <button
+                  disabled={deleteConfirmText !== 'DELETE'}
+                  onClick={() => { removeCareer(careerToDelete); setCareerToDelete(null); setDeleteConfirmText(''); }}
+                  className="flex-1 bg-destructive text-destructive-foreground px-4 py-3 rounded-xl font-semibold disabled:opacity-50 transition-opacity"
+                >
+                  Delete Path
+                </button>
+                <button
+                  onClick={() => { setCareerToDelete(null); setDeleteConfirmText(''); }}
+                  className="flex-1 glass px-4 py-3 rounded-xl font-semibold hover:bg-secondary transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
