@@ -147,7 +147,7 @@ export default function RoadmapView() {
                 <span className="text-foreground font-medium">{new Date(activeCareer.startDate).toLocaleDateString()}</span>
               </div>
               <div className="flex justify-between items-center text-sm">
-                <span className="text-muted-foreground">Assumed Target:</span>
+                <span className="text-muted-foreground">Target Date:</span>
                 <span className="text-foreground font-medium">{new Date(activeCareer.targetDate).toLocaleDateString()}</span>
               </div>
 
@@ -172,17 +172,21 @@ export default function RoadmapView() {
         </div>
 
         {currentTask && (
-          <div className="mt-6 p-4 rounded-xl border border-primary/20 bg-primary/5 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-            <div>
-              <p className="text-xs text-primary uppercase font-mono tracking-wider mb-1">Current Task</p>
-              <p className="text-foreground font-semibold">{currentTask.title}</p>
+          <div className="mt-8 p-6 rounded-2xl border border-secondary bg-background shadow-lg relative z-20 flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
+            <div className="flex-1">
+              <p className="text-xs text-primary uppercase font-mono tracking-wider mb-2">Current Task Focus</p>
+              <h3 className="text-xl font-bold text-foreground mb-2">{currentTask.title}</h3>
+              <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{currentTask.description}</p>
+              <div className="inline-flex bg-primary/10 px-3 py-2 rounded-lg border border-primary/20">
+                <p className="text-xs text-primary font-medium"><strong className="mr-1">Objective:</strong> {currentTask.objective}</p>
+              </div>
             </div>
-            <button className="glass glow-primary px-4 py-2 text-sm text-primary font-bold rounded-lg whitespace-nowrap" onClick={() => {
+            <button className="glass shrink-0 px-6 py-3 text-sm text-primary font-bold rounded-xl whitespace-nowrap hover:bg-primary/10 transition-colors border-primary/50 shadow-[0_0_15px_rgba(var(--primary),0.1)]" onClick={() => {
               const p = activeCareer.phases.find(x => x.id === currentTask.phaseId);
               const isLastInPhase = p?.tasks[p.tasks.length - 1].id === currentTask.id;
               handleTaskComplete(currentTask.id, isLastInPhase);
             }}>
-              Mark Complete ✅
+              Mark Complete
             </button>
           </div>
         )}

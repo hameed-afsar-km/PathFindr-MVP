@@ -189,13 +189,26 @@ export function generateRoadmap(careerId: string, daysRemaining: number, level: 
     const taskCount = pi === phaseCount - 1 ? daysRemaining - dayCounter + 1 : daysPerPhase;
     const tasks: Task[] = [];
 
+    const actions = [
+      { action: "Learn principles of", details: "Focus on theoretical concepts and background." },
+      { action: "Set up tools for", details: "Configure your development environment and necessary dependencies." },
+      { action: "Build basic structures using", details: "Create initial components and verify they compile/run correctly." },
+      { action: "Practice advanced techniques in", details: "Implement complex features to deepen your understanding." },
+      { action: "Review and refactor", details: "Improve code efficiency, readability, and overall quality." },
+      { action: "Complete mini-project on", details: "Deliver a small, functional solution utilizing recent lessons." },
+      { action: "Debug and test", details: "Ensure high reliability through edge-case testing and debugging." },
+      { action: "Publish and summarize", details: "Document your approach and make it accessible for presentation." }
+    ];
+
     for (let ti = 0; ti < taskCount && dayCounter <= daysRemaining; ti++) {
+      const variation = actions[ti % actions.length];
+
       tasks.push({
         id: `task-${pi}-${ti}`,
         day: dayCounter,
-        title: `Day ${dayCounter}: ${phaseName} - Session ${ti + 1}`,
-        description: `Deep dive into ${phaseName}. Focus on practical application and understanding core concepts through hands-on exercises.`,
-        objective: `Complete the ${phaseName.toLowerCase()} exercise set ${ti + 1} and submit your work.`,
+        title: `Task ${dayCounter}: ${variation.action} ${phaseName}`,
+        description: `Deep dive into ${phaseName} - ${variation.details} This hands-on exercise solidifies your understanding for this topic.`,
+        objective: `${variation.action} ${phaseName.toLowerCase()}`,
         youtubeLink: `https://www.youtube.com/results?search_query=${encodeURIComponent(career.title + ' ' + phaseName + ' tutorial')}`,
         completed: false,
         phaseId: `phase-${pi}`,
