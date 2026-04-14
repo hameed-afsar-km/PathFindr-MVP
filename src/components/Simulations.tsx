@@ -130,76 +130,85 @@ export default function Simulations() {
                 <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Context Analysis</span>
               </div>
 
-              <p className="text-xl md:text-2xl font-bold text-foreground leading-relaxed mb-10">
-                {sim.scenario}
-              </p>
+              {!sim ? (
+                <div className="flex-1 flex flex-col items-center justify-center text-center py-20">
+                  <Brain className="w-12 h-12 text-muted-foreground/20 mb-4" />
+                  <p className="text-muted-foreground font-bold">Synthesizing tactical scenarios...</p>
+                </div>
+              ) : (
+                <>
+                  <p className="text-xl md:text-2xl font-bold text-foreground leading-relaxed mb-10">
+                    {sim.scenario}
+                  </p>
 
-              <div className="grid grid-cols-1 gap-4 flex-1">
-                {sim.options.map((opt, i) => {
-                  let statusStyle = 'border-border/50 bg-secondary/10 hover:border-primary/50 hover:bg-secondary/20';
-                  let icon = <div className="w-2 h-2 rounded-full bg-border group-hover:bg-primary transition-colors" />;
+                  <div className="grid grid-cols-1 gap-4 flex-1">
+                    {sim.options.map((opt, i) => {
+                      let statusStyle = 'border-border/50 bg-secondary/10 hover:border-primary/50 hover:bg-secondary/20';
+                      let icon = <div className="w-2 h-2 rounded-full bg-border group-hover:bg-primary transition-colors" />;
 
-                  if (answered !== null) {
-                    if (opt.correct) {
-                      statusStyle = 'border-success bg-success/10 cursor-default ring-2 ring-success/20';
-                      icon = <CheckCircle2 className="w-5 h-5 text-success shrink-0" />;
-                    }
-                    else if (i === answered) {
-                      statusStyle = 'border-destructive bg-destructive/10 cursor-default ring-2 ring-destructive/20';
-                      icon = <XCircle className="w-5 h-5 text-destructive shrink-0" />;
-                    }
-                    else {
-                      statusStyle = 'border-border/20 opacity-40 cursor-default';
-                    }
-                  }
+                      if (answered !== null) {
+                        if (opt.correct) {
+                          statusStyle = 'border-success bg-success/10 cursor-default ring-2 ring-success/20';
+                          icon = <CheckCircle2 className="w-5 h-5 text-success shrink-0" />;
+                        }
+                        else if (i === answered) {
+                          statusStyle = 'border-destructive bg-destructive/10 cursor-default ring-2 ring-destructive/20';
+                          icon = <XCircle className="w-5 h-5 text-destructive shrink-0" />;
+                        }
+                        else {
+                          statusStyle = 'border-border/20 opacity-40 cursor-default';
+                        }
+                      }
 
-                  return (
-                    <motion.button
-                      key={i}
-                      whileHover={{ x: 8, scale: 1.01 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                      onClick={() => handleAnswer(i)}
-                      disabled={answered !== null}
-                      className={`group relative flex items-center gap-5 text-left p-6 rounded-2xl text-sm font-semibold text-foreground transition-all border ${statusStyle}`}
-                    >
-                      {icon}
-                      <span className="flex-1 leading-snug">{opt.text}</span>
-                      {answered !== null && opt.correct && (
-                        <span className="text-xp font-mono text-xs font-bold bg-xp/10 px-2 py-1 rounded">+{opt.xp} XP</span>
-                      )}
-                    </motion.button>
-                  );
-                })}
-              </div>
-
-              {answered !== null && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-8 pt-8 border-t border-border/50">
-                  <div className="bg-secondary/20 p-5 rounded-2xl border border-border/50 mb-8">
-                    <p className="text-sm text-muted-foreground leading-relaxed italic">{sim.options[answered].explanation}</p>
+                      return (
+                        <motion.button
+                          key={i}
+                          whileHover={{ x: 8, scale: 1.01 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                          onClick={() => handleAnswer(i)}
+                          disabled={answered !== null}
+                          className={`group relative flex items-center gap-5 text-left p-6 rounded-2xl text-sm font-semibold text-foreground transition-all border ${statusStyle}`}
+                        >
+                          {icon}
+                          <span className="flex-1 leading-snug">{opt.text}</span>
+                          {answered !== null && opt.correct && (
+                            <span className="text-xp font-mono text-xs font-bold bg-xp/10 px-2 py-1 rounded">+{opt.xp} XP</span>
+                          )}
+                        </motion.button>
+                      );
+                    })}
                   </div>
 
-                  {currentSim < scenarios.length - 1 ? (
-                    <button
-                      onClick={nextSim}
-                      className="w-full md:w-auto px-10 py-4 gradient-primary rounded-xl text-primary-foreground font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform"
-                    >
-                      Analyze Next Scenario →
-                    </button>
-                  ) : (
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-8 bg-xp/5 rounded-3xl border border-xp/20">
-                      <div>
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Mission Debriefing</p>
-                        <p className="text-2xl font-black text-foreground">Total Tactical Gains: <span className="text-xp">{totalXP} XP</span></p>
+                  {answered !== null && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-8 pt-8 border-t border-border/50">
+                      <div className="bg-secondary/20 p-5 rounded-2xl border border-border/50 mb-8">
+                        <p className="text-sm text-muted-foreground leading-relaxed italic">{sim.options[answered].explanation}</p>
                       </div>
-                      <button
-                        onClick={() => setStarted(false)}
-                        className="px-8 py-3 glass rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all shadow-xl"
-                      >
-                        Simulation Log Exit
-                      </button>
-                    </div>
+
+                      {currentSim < scenarios.length - 1 ? (
+                        <button
+                          onClick={nextSim}
+                          className="w-full md:w-auto px-10 py-4 gradient-primary rounded-xl text-primary-foreground font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform"
+                        >
+                          Analyze Next Scenario →
+                        </button>
+                      ) : (
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-8 bg-xp/5 rounded-3xl border border-xp/20">
+                          <div>
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Mission Debriefing</p>
+                            <p className="text-2xl font-black text-foreground">Total Tactical Gains: <span className="text-xp">{totalXP} XP</span></p>
+                          </div>
+                          <button
+                            onClick={() => setStarted(false)}
+                            className="px-8 py-3 glass rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all shadow-xl"
+                          >
+                            Simulation Log Exit
+                          </button>
+                        </div>
+                      )}
+                    </motion.div>
                   )}
-                </motion.div>
+                </>
               )}
             </div>
           </div>

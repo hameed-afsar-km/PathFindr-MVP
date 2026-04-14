@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
+import { useERP } from '@/context/ERPContext';
 import { generateCareerMatches, generateMoreCareers, searchCareers } from '@/lib/mockAI';
 import { Search, Sparkles, BrainCircuit, Rocket, Target, ArrowRight, RefreshCw } from 'lucide-react';
 import { GlowingEffect } from './ui/glowing-effect';
@@ -15,6 +16,7 @@ const loadingTexts = [
 
 export default function CareerMatcher() {
   const { surveyAnswers, setScreen } = useApp();
+  const { session, updateStudent, addNotification } = useERP();
   const [loading, setLoading] = useState(true);
   const [loadingText, setLoadingText] = useState(loadingTexts[0]);
   const [matches, setMatches] = useState<{ title: string; matchPercentage: number; justification: string; id: string }[]>([]);
@@ -56,7 +58,41 @@ export default function CareerMatcher() {
 
   const handleSelect = (id: string) => {
     setSelectedId(id);
-    // Store selected career ID temporarily
+    const careerObj = matches.find(m => m.id === id) || searchResults.find(r => r.id === id);
+    if (!careerObj) return;
+
+    const careerTitle = careerObj.title;
+
+    if (session?.role === 'student' && session.instituteId) {
+      // Get current career string
+      const rawERP = localStorage.getItem('pathfindr-erp');
+      if (rawERP) {
+        const erpData = JSON.parse(rawERP);
+        const inst = erpData.institutes.find((i: any) => i.id === session.instituteId);
+        const student = inst?.students.find((s: any) => s.id === session.userId);
+        
+        if (student) {
+          const limit = student.courseLimit || 1;
+          const currentPaths = student.activeCareer ? student.activeCareer.split(',').map((p: string) => p.trim()).filter(Boolean) : [];
+          
+          if (currentPaths.includes(careerTitle)) {
+             alert(`You are already enrolled in the ${careerTitle} trajectory.`);
+          } else if (currentPaths.length >= limit) {
+             alert(`Trajectory limit reached (${limit}). Contact your institute to authorize more career paths.`);
+             return;
+          } else {
+             const newCareerStr = [...currentPaths, careerTitle].join(', ');
+             updateStudent(session.instituteId, session.userId, { activeCareer: newCareerStr });
+             addNotification(session.instituteId, {
+               studentId: session.userId,
+               message: `${session.username} successfully allotted to new career path: ${careerTitle}`,
+             });
+          }
+        }
+      }
+    }
+
+    // Store selected career ID temporarily for prototype flow compat
     localStorage.setItem('pathfindr-selected-career', id);
     setScreen('skill-assessment');
   };

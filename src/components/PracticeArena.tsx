@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getPracticeQuestions } from '@/lib/mockAI';
-import { Search, CheckCircle2, XCircle, ArrowLeft, BookOpen, BrainCircuit } from 'lucide-react';
+import { useApp } from '@/context/AppContext';
+import { Search, CheckCircle2, XCircle, ArrowLeft, BookOpen, BrainCircuit, Sparkles } from 'lucide-react';
 import { GlowingEffect } from './ui/glowing-effect';
 
 const topics = ['JavaScript', 'React', 'TypeScript', 'Python', 'SQL', 'System Design', 'Data Structures', 'Algorithms'];
 
 export default function PracticeArena() {
+  const { profile, updateProfile } = useApp();
   const [selectedTopic, setSelectedTopic] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [questions, setQuestions] = useState<any[]>([]);
@@ -37,7 +39,10 @@ export default function PracticeArena() {
   const handleAnswer = (idx: number) => {
     if (answered !== null) return;
     setAnswered(idx);
-    if (idx === questions[currentQ].correctIndex) setScore(s => s + 1);
+    if (idx === questions[currentQ].correctIndex) {
+      setScore(s => s + 1);
+      updateProfile({ xp: (profile.xp || 0) + 10 });
+    }
   };
 
   const nextQuestion = () => {
@@ -133,101 +138,104 @@ export default function PracticeArena() {
           </div>
         </div>
         <div className="flex items-center gap-3 bg-secondary/50 px-4 py-2 rounded-2xl border border-border/50">
-          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Question {currentQ + 1}/{questions.length}</span>
           <div className="w-[1px] h-3 bg-border" />
           <span className="text-sm font-mono font-bold text-primary">Score: {score}</span>
+          <div className="w-[1px] h-3 bg-border" />
+          <span className="text-xs font-black text-amber-500 flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5" /> {(profile.xp || 0)} XP</span>
         </div>
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentQ}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="relative min-h-[400px]"
-        >
-          <div className="relative h-full rounded-[2.5rem] border border-border/50 p-1 md:p-2">
-            <GlowingEffect spread={80} glow={true} disabled={false} proximity={128} inactiveZone={0.01} borderWidth={3} />
-            <div className="relative h-full flex flex-col p-8 md:p-10 rounded-[2.25rem] bg-background overflow-hidden">
-              <h3 className="text-xl md:text-2xl font-bold text-foreground leading-relaxed mb-10">
-                {q.question}
-              </h3>
+      {q && (
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentQ}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="relative min-h-[400px]"
+          >
+            <div className="relative h-full rounded-[2.5rem] border border-border/50 p-1 md:p-2">
+              <GlowingEffect spread={80} glow={true} disabled={false} proximity={128} inactiveZone={0.01} borderWidth={3} />
+              <div className="relative h-full flex flex-col p-8 md:p-10 rounded-[2.25rem] bg-background overflow-hidden">
+                <h3 className="text-xl md:text-2xl font-bold text-foreground leading-relaxed mb-10">
+                  {q.question}
+                </h3>
 
-              <div className="grid grid-cols-1 gap-4 flex-1">
-                {q.options.map((opt, i) => {
-                  let statusStyle = 'border-border/50 bg-secondary/20 hover:border-primary/30 hover:bg-secondary/40';
-                  let icon = <div className="w-5 h-5 rounded-lg border-2 border-primary/20 flex items-center justify-center font-mono text-[10px] text-primary/50 group-hover:border-primary transition-colors">{String.fromCharCode(65 + i)}</div>;
+                <div className="grid grid-cols-1 gap-4 flex-1">
+                  {q.options.map((opt, i) => {
+                    let statusStyle = 'border-border/50 bg-secondary/20 hover:border-primary/30 hover:bg-secondary/40';
+                    let icon = <div className="w-5 h-5 rounded-lg border-2 border-primary/20 flex items-center justify-center font-mono text-[10px] text-primary/50 group-hover:border-primary transition-colors">{String.fromCharCode(65 + i)}</div>;
 
-                  if (answered !== null) {
-                    if (i === q.correctIndex) {
-                      statusStyle = 'border-success bg-success/10 cursor-default ring-2 ring-success/20';
-                      icon = <CheckCircle2 className="w-5 h-5 text-success shrink-0 scale-110" />;
+                    if (answered !== null) {
+                      if (i === q.correctIndex) {
+                        statusStyle = 'border-success bg-success/10 cursor-default ring-2 ring-success/20';
+                        icon = <CheckCircle2 className="w-5 h-5 text-success shrink-0 scale-110" />;
+                      }
+                      else if (i === answered) {
+                        statusStyle = 'border-destructive bg-destructive/10 cursor-default ring-2 ring-destructive/20';
+                        icon = <XCircle className="w-5 h-5 text-destructive shrink-0 scale-110" />;
+                      }
+                      else {
+                        statusStyle = 'border-border/20 opacity-40 cursor-default';
+                      }
                     }
-                    else if (i === answered) {
-                      statusStyle = 'border-destructive bg-destructive/10 cursor-default ring-2 ring-destructive/20';
-                      icon = <XCircle className="w-5 h-5 text-destructive shrink-0 scale-110" />;
-                    }
-                    else {
-                      statusStyle = 'border-border/20 opacity-40 cursor-default';
-                    }
-                  }
 
-                  return (
-                    <motion.button
-                      key={i}
-                      whileHover={{ x: 8, scale: 1.01 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                      onClick={() => handleAnswer(i)}
-                      disabled={answered !== null}
-                      className={`group relative flex items-center gap-5 text-left p-5 rounded-2xl text-sm font-semibold text-foreground transition-all border ${statusStyle}`}
-                    >
-                      {icon}
-                      <span className="flex-1 leading-snug">{opt}</span>
-                    </motion.button>
-                  );
-                })}
-              </div>
-
-              {answered !== null && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-8 pt-8 border-t border-border/50">
-                  <div className="flex items-start gap-4 mb-6">
-                    <div className="p-2 bg-primary/5 rounded-lg shrink-0">
-                      <BrainCircuit className="w-4 h-4 text-primary" />
-                    </div>
-                    <div>
-                      <h4 className="text-[10px] font-black uppercase tracking-widest text-primary mb-2">Insight & Explanation</h4>
-                      <p className="text-sm text-muted-foreground leading-relaxed italic">{q.explanation}</p>
-                    </div>
-                  </div>
-
-                  {currentQ < questions.length - 1 ? (
-                    <button
-                      onClick={nextQuestion}
-                      className="w-full md:w-auto px-10 py-4 gradient-primary rounded-xl text-primary-foreground font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform"
-                    >
-                      Next Challenge →
-                    </button>
-                  ) : (
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-6 bg-primary/5 rounded-2xl border border-primary/10">
-                      <div>
-                        <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Assessment Complete</p>
-                        <p className="text-lg font-black text-foreground">You scored <span className="text-primary">{score}</span> out of <span className="text-primary">{questions.length}</span></p>
-                      </div>
-                      <button
-                        onClick={() => setSelectedTopic('')}
-                        className="px-8 py-3 glass rounded-xl text-xs font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all"
+                    return (
+                      <motion.button
+                        key={i}
+                        whileHover={{ x: 8, scale: 1.01 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                        onClick={() => handleAnswer(i)}
+                        disabled={answered !== null}
+                        className={`group relative flex items-center gap-5 text-left p-5 rounded-2xl text-sm font-semibold text-foreground transition-all border ${statusStyle}`}
                       >
-                        Try New Topic
-                      </button>
+                        {icon}
+                        <span className="flex-1 leading-snug">{opt}</span>
+                      </motion.button>
+                    );
+                  })}
+                </div>
+
+                {answered !== null && (
+                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-8 pt-8 border-t border-border/50">
+                    <div className="flex items-start gap-4 mb-6">
+                      <div className="p-2 bg-primary/5 rounded-lg shrink-0">
+                        <BrainCircuit className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-primary mb-2">Insight & Explanation</h4>
+                        <p className="text-sm text-muted-foreground leading-relaxed italic">{q.explanation}</p>
+                      </div>
                     </div>
-                  )}
-                </motion.div>
-              )}
+
+                    {currentQ < questions.length - 1 ? (
+                      <button
+                        onClick={nextQuestion}
+                        className="w-full md:w-auto px-10 py-4 gradient-primary rounded-xl text-primary-foreground font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform"
+                      >
+                        Next Challenge →
+                      </button>
+                    ) : (
+                      <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-6 bg-primary/5 rounded-2xl border border-primary/10">
+                        <div>
+                          <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Assessment Complete</p>
+                          <p className="text-lg font-black text-foreground">You scored <span className="text-primary">{score}</span> out of <span className="text-primary">{questions.length}</span></p>
+                        </div>
+                        <button
+                          onClick={() => setSelectedTopic('')}
+                          className="px-8 py-3 glass rounded-xl text-xs font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all"
+                        >
+                          Try New Topic
+                        </button>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </div>
             </div>
-          </div>
-        </motion.div>
-      </AnimatePresence>
+          </motion.div>
+        </AnimatePresence>
+      )}
     </div>
   );
 }

@@ -1,18 +1,28 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getInterviewQuestions } from '@/lib/mockAI';
-import { Building2, CheckCircle2, XCircle, ArrowLeft, Trophy, Calendar, Briefcase } from 'lucide-react';
+import { useApp } from '@/context/AppContext';
+import { Building2, CheckCircle2, XCircle, ArrowLeft, Trophy, Calendar, Briefcase, Sparkles } from 'lucide-react';
 import { GlowingEffect } from './ui/glowing-effect';
 
 const companies = ['Google', 'Amazon', 'Meta', 'Apple', 'Microsoft', 'Netflix', 'Stripe', 'Uber'];
 
 export default function InterviewPrep() {
+  const { profile, updateProfile } = useApp();
   const [company, setCompany] = useState('');
   const [questions, setQuestions] = useState<any[]>([]);
   const [currentQ, setCurrentQ] = useState(0);
   const [answered, setAnswered] = useState<number | null>(null);
   const [filter, setFilter] = useState<'all' | 'technical' | 'behavioral'>('all');
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleAnswer = (idx: number) => {
+    if (answered !== null) return;
+    setAnswered(idx);
+    if (idx === q.correctIndex) {
+      updateProfile({ xp: (profile.xp || 0) + 20 });
+    }
+  };
 
   const startPrep = async (c: string) => {
     setCompany(c);
@@ -67,12 +77,10 @@ export default function InterviewPrep() {
     );
   }
 
-  const filtered = questions.filter(q => filter === 'all' || q.type === filter);
   const q = filtered[currentQ];
-  if (!q) return null;
 
   return (
-    <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-8">
+    <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-8 min-h-[600px]">
       <AnimatePresence>
         {isLoading && (
           <motion.div
@@ -103,6 +111,11 @@ export default function InterviewPrep() {
               <Trophy className="w-5 h-5 text-accent" />
             </div>
             <h2 className="text-2xl md:text-3xl font-extrabold text-foreground tracking-tight">{company} Mastery</h2>
+          </div>
+          <div className="mt-2 flex items-center gap-2">
+            <span className="text-xs font-black text-amber-500 flex items-center gap-1.5 bg-amber-500/10 px-3 py-1.5 rounded-xl border border-amber-500/20">
+               <Sparkles className="w-3.5 h-3.5" /> {(profile.xp || 0)} XP
+            </span>
           </div>
         </div>
 
@@ -144,61 +157,73 @@ export default function InterviewPrep() {
                 </span>
               </div>
 
-              <h3 className="text-xl md:text-2xl font-bold text-foreground leading-relaxed mb-10">
-                {q.question}
-              </h3>
+              {!q ? (
+                <div className="flex-1 flex flex-col items-center justify-center text-center py-20">
+                  <Briefcase className="w-12 h-12 text-muted-foreground/20 mb-4" />
+                  <p className="text-muted-foreground font-bold">Initializing assessment intel...</p>
+                </div>
+              ) : (
+                <>
+                  <h3 className="text-xl md:text-2xl font-bold text-foreground leading-relaxed mb-10">
+                    {q.question}
+                  </h3>
 
-              <div className="grid grid-cols-1 gap-4 flex-1">
-                {q.options.map((opt, i) => {
-                  let statusStyle = 'border-border/50 bg-secondary/10 hover:border-accent/30 hover:bg-secondary/30';
-                  let icon = <div className="w-5 h-5 rounded-lg border-2 border-accent/20 flex items-center justify-center font-mono text-[10px] text-accent/50 group-hover:border-accent transition-colors">{String.fromCharCode(65 + i)}</div>;
+                  <div className="grid grid-cols-1 gap-4 flex-1">
+                    {q.options.map((opt, i) => {
+                      let statusStyle = 'border-border/50 bg-secondary/10 hover:border-accent/30 hover:bg-secondary/30';
+                      let icon = <div className="w-5 h-5 rounded-lg border-2 border-accent/20 flex items-center justify-center font-mono text-[10px] text-accent/50 group-hover:border-accent transition-colors">{String.fromCharCode(65 + i)}</div>;
 
-                  if (answered !== null) {
-                    if (i === q.correctIndex) {
-                      statusStyle = 'border-success bg-success/10 cursor-default ring-2 ring-success/20';
-                      icon = <CheckCircle2 className="w-5 h-5 text-success shrink-0" />;
-                    }
-                    else if (i === answered) {
-                      statusStyle = 'border-destructive bg-destructive/10 cursor-default ring-2 ring-destructive/20';
-                      icon = <XCircle className="w-5 h-5 text-destructive shrink-0" />;
-                    }
-                    else {
-                      statusStyle = 'border-border/20 opacity-40 cursor-default';
-                    }
-                  }
+                      if (answered !== null) {
+                        if (i === q.correctIndex) {
+                          statusStyle = 'border-success bg-success/10 cursor-default ring-2 ring-success/20';
+                          icon = <CheckCircle2 className="w-5 h-5 text-success shrink-0" />;
+                        }
+                        else if (i === answered) {
+                          statusStyle = 'border-destructive bg-destructive/10 cursor-default ring-2 ring-destructive/20';
+                          icon = <XCircle className="w-5 h-5 text-destructive shrink-0" />;
+                        }
+                        else {
+                          statusStyle = 'border-border/20 opacity-40 cursor-default';
+                        }
+                      }
 
-                  return (
+                      return (
+                        <motion.button
+                          key={i}
+                          whileHover={{ x: 8, scale: 1.01 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                          onClick={() => handleAnswer(i)}
+                          disabled={answered !== null}
+                          className={`group relative flex items-center gap-5 text-left p-5 rounded-2xl text-sm font-semibold text-foreground transition-all border ${statusStyle}`}
+                        >
+                          {icon}
+                          <span className="flex-1 leading-snug">{opt}</span>
+                          {answered !== null && i === q.correctIndex && (
+                             <span className="text-[10px] font-black text-amber-500 bg-amber-500/10 px-2 py-1 rounded">+20 XP</span>
+                          )}
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+
+                  {answered !== null && currentQ < filtered.length - 1 && (
                     <motion.button
-                      key={i}
-                      whileHover={{ x: 8, scale: 1.01 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                      onClick={() => answered === null && setAnswered(i)}
-                      disabled={answered !== null}
-                      className={`group relative flex items-center gap-5 text-left p-5 rounded-2xl text-sm font-semibold text-foreground transition-all border ${statusStyle}`}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      onClick={() => { setCurrentQ(c => c + 1); setAnswered(null); }}
+                      className="mt-10 w-full md:w-auto px-10 py-4 bg-accent text-white rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-accent/20 hover:scale-[1.02] transition-transform"
                     >
-                      {icon}
-                      <span className="flex-1 leading-snug">{opt}</span>
+                      Proceed to Next →
                     </motion.button>
-                  );
-                })}
-              </div>
+                  )}
 
-              {answered !== null && currentQ < filtered.length - 1 && (
-                <motion.button
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  onClick={() => { setCurrentQ(c => c + 1); setAnswered(null); }}
-                  className="mt-10 w-full md:w-auto px-10 py-4 bg-accent text-white rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-accent/20 hover:scale-[1.02] transition-transform"
-                >
-                  Proceed to Next →
-                </motion.button>
-              )}
-
-              {answered !== null && currentQ === filtered.length - 1 && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-10 p-6 bg-accent/5 rounded-2xl border border-accent/10 flex items-center justify-between">
-                  <p className="text-sm font-bold text-accent uppercase tracking-widest">Section Mastery Complete</p>
-                  <button onClick={() => setCompany('')} className="px-6 py-2 glass rounded-lg text-xs font-bold uppercase hover:bg-accent hover:text-white transition-all">Select Company</button>
-                </motion.div>
+                  {answered !== null && currentQ === filtered.length - 1 && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-10 p-6 bg-accent/5 rounded-2xl border border-accent/10 flex items-center justify-between">
+                      <p className="text-sm font-bold text-accent uppercase tracking-widest">Section Mastery Complete</p>
+                      <button onClick={() => setCompany('')} className="px-6 py-2 glass rounded-lg text-xs font-bold uppercase hover:bg-accent hover:text-white transition-all">Select Company</button>
+                    </motion.div>
+                  )}
+                </>
               )}
             </div>
           </div>

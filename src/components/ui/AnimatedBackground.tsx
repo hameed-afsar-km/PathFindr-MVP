@@ -17,42 +17,34 @@ export const AnimatedBackground = () => {
                     translateX: ["-100%", "200%"],
                 }}
                 transition={{
-                    duration: 15,
+                    duration: 20,
                     repeat: Infinity,
                     ease: "linear",
-                    repeatDelay: 5
+                    repeatDelay: 8
                 }}
+                className="absolute top-0 left-0 w-[40%] h-full -skew-x-12 gpu"
                 style={{
-                    willChange: "transform",
-                    background: "linear-gradient(to right, transparent, hsla(var(--primary) / 0.05), transparent)"
+                    background: "linear-gradient(to right, transparent, hsla(var(--primary) / 0.03), transparent)"
                 }}
-                className="absolute top-0 left-0 w-[40%] h-full -skew-x-12"
             />
 
             {/* Layer 4: Minimal Particles */}
-            {[...Array(4)].map((_, i) => (
+            {[...Array(3)].map((_, i) => (
                 <motion.div
                     key={i}
-                    initial={{
-                        opacity: 0,
-                        x: (i * 25) + "%",
-                        y: "110%"
-                    }}
+                    initial={{ opacity: 0, x: (i * 33) + "%", y: "110%" }}
                     animate={{
-                        opacity: [0, 0.15, 0],
+                        opacity: [0, 0.1, 0],
                         y: ["110%", "-10%"],
                     }}
                     transition={{
-                        duration: 20 + i * 5,
+                        duration: 25 + i * 5,
                         repeat: Infinity,
                         ease: "linear",
-                        delay: i * 4
+                        delay: i * 6
                     }}
-                    style={{
-                        willChange: "transform",
-                        left: (i * 25) + "%"
-                    }}
-                    className="absolute w-[1px] h-[60px] bg-gradient-to-b from-primary/20 to-transparent"
+                    className="absolute w-[1px] h-[40px] bg-gradient-to-b from-primary/20 to-transparent gpu"
+                    style={{ left: (i * 33) + "%" }}
                 />
             ))}
 
