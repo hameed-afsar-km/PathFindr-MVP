@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { GlowingEffect } from './ui/glowing-effect';
+import { EtherealShadow } from './ui/etheral-shadow';
 import { Compass, Sparkles, BrainCircuit } from 'lucide-react';
 
 export default function SplashScreen() {
@@ -27,7 +28,14 @@ export default function SplashScreen() {
       transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
     >
       {/* Dynamic Background */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/5 via-background to-background" />
+      <div className="absolute inset-0 z-0 opacity-20">
+        <EtherealShadow 
+          color="rgba(167, 139, 250, 1)" 
+          animation={{ scale: 80, speed: 10 }}
+          noise={{ opacity: 0.8, scale: 1.8 }}
+          sizing="fill"
+        />
+      </div>
       <motion.div
         className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none"
         animate={{ opacity: [0.03, 0.05, 0.03] }}

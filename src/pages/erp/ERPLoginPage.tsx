@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useERP } from '@/context/ERPContext';
+import { EtherealShadow } from '@/components/ui/etheral-shadow';
 import { Sparkles, Eye, EyeOff, AlertCircle, ArrowRight, Lock } from 'lucide-react';
 
 export default function ERPLoginPage() {
@@ -23,11 +24,16 @@ export default function ERPLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[hsl(255_45%_12%)] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Ambient blobs */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-pink-500/10 rounded-full blur-[100px] pointer-events-none" />
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-background">
+      {/* Dynamic Ethereal Background */}
+      <div className="absolute inset-0 z-0 opacity-20">
+        <EtherealShadow 
+          color="rgba(167, 139, 250, 1)" 
+          animation={{ scale: 80, speed: 10 }}
+          noise={{ opacity: 0.8, scale: 1.8 }}
+          sizing="fill"
+        />
+      </div>
 
       <div className="w-full max-w-md relative z-10">
         {/* Logo */}
