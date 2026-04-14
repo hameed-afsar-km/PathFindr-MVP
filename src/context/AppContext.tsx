@@ -119,7 +119,7 @@ const defaultProfile: UserProfile = {
 };
 
 const defaultState: AppState = {
-  screen: 'splash',
+  screen: 'auth',
   homeTab: 'dashboard',
   profile: defaultProfile,
   surveyAnswers: [],
@@ -136,8 +136,8 @@ function loadState(): AppState {
     const saved = localStorage.getItem('pathfindr-state');
     if (saved) {
       const parsed = JSON.parse(saved);
-      // Always show splash on app launch
-      return { ...defaultState, ...parsed, screen: 'splash' };
+      // Default to auth for SaaS flow
+      return { ...defaultState, ...parsed, screen: 'auth' };
     }
   } catch (e) {
     console.error('Error loading state:', e);

@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useApp } from '@/context/AppContext';
+
 import { GlowingEffect } from './ui/glowing-effect';
 import { Compass, Sparkles, BrainCircuit } from 'lucide-react';
 
 export default function SplashScreen() {
-  const { setScreen, careers, profile } = useApp();
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
@@ -15,23 +14,11 @@ export default function SplashScreen() {
     const timer1 = setTimeout(() => setPhase(1), 800);
     const timer2 = setTimeout(() => setPhase(2), 1600);
 
-    // Automatically transition to the next screen after 3.2 seconds for full effect visibility
-    const finalTimer = setTimeout(() => {
-      if (careers && careers.length > 0) {
-        setScreen('home');
-      } else if (profile?.username) {
-        setScreen('onboarding');
-      } else {
-        setScreen('auth');
-      }
-    }, 3500);
-
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
-      clearTimeout(finalTimer);
     };
-  }, [careers, profile, setScreen]);
+  }, []);
 
   return (
     <motion.div

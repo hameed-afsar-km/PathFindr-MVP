@@ -11,13 +11,14 @@
  * Also handles path-based institute routing: /institute/:slug
  */
 
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useERP } from '@/context/ERPContext';
 import ERPLoginPage from '@/pages/erp/ERPLoginPage';
 import AdminDashboard from '@/pages/erp/AdminDashboard';
 import InstituteDashboard from '@/pages/erp/InstituteDashboard';
 import StudentERPWrapper from '@/pages/erp/StudentERPWrapper';
+import SplashScreen from '@/components/SplashScreen';
 
 function PageTransition({ children, keyVal }: { children: React.ReactNode; keyVal: string }) {
   return (
@@ -38,11 +39,15 @@ function PageTransition({ children, keyVal }: { children: React.ReactNode; keyVa
 
 export default function ERPRouter() {
   const { session, institutes, loginAdmin } = useERP();
+  const [showSplash, setShowSplash] = useState(true);
 
   // ── Path-based slug routing ──────────────────────────────────────────────
   // If the URL is /institute/:slug we treat this as "show institute login"
   // In a real app you'd do this with React Router; here we parse window.location.
   useEffect(() => {
+    // Hide splash after 3 seconds
+    const timer = setTimeout(() => setShowSplash(false), 3000);
+
     const path = window.location.pathname; // e.g. /institute/apex-tech
     const match = path.match(/^\/institute\/([^/]+)/);
     if (match) {
@@ -55,7 +60,13 @@ export default function ERPRouter() {
     } else {
       document.title = 'PathFindr ERP';
     }
+
+    return () => clearTimeout(timer);
   }, [institutes]);
+
+  if (showSplash) {
+    return <SplashScreen />;
+  }
 
   // ── Role routing ─────────────────────────────────────────────────────────
   if (!session) {
