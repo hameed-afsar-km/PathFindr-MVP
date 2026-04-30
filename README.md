@@ -62,7 +62,7 @@ PathFindr is a sophisticated, multi-tenant Educational Resource Planning (ERP) S
 
 1. **Clone the repository**
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/hameed-afsar-km/PathFindr-MVP.git
    cd PathFindr-MVP
    ```
 
