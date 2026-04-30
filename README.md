@@ -1,73 +1,132 @@
-# Welcome to your Lovable project
+# 🚀 PathFindr MVP — Multi-Tenant ERP SaaS Platform
 
-## Project info
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Shadcn UI](https://img.shields.io/badge/Shadcn_UI-000000?style=for-the-badge&logo=shadcnui&logoColor=white)](https://ui.shadcn.com/)
+[![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)](https://www.framer.com/motion/)
+[![Google Gemini](https://img.shields.io/badge/Google_Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+PathFindr is a sophisticated, multi-tenant Educational Resource Planning (ERP) SaaS platform designed to bridge the gap between educational institutes and students. Built with a focus on modern aesthetics, scalability, and AI-driven insights.
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## ✨ Key Features
 
-**Use Lovable**
+### 🏢 Multi-Tenancy & White-Labeling
+- **Dynamic Theming**: Institutes can choose from predefined premium themes (Cosmic Purple, Deep Ocean, Neon Forest, etc.).
+- **Custom Branding**: Full white-label support including logo initials and custom slugs.
+- **Feature Toggling**: Super admins can authorize specific features per institute (Roadmaps, Practice, Chatbot, etc.).
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+### 📊 Comprehensive Dashboards
+- **Admin Dashboard**: Global overview of all institutes, user management, and platform analytics.
+- **Institute Dashboard**: Student management, performance tracking, announcement broadcasting, and feature configuration.
+- **Student Portal**: Personalized experience with roadmaps, XP tracking, streaks, and course management.
 
-Changes made via Lovable will be committed automatically to this repo.
+### 🤖 AI Integration
+- **Gemini Powered**: Built-in integration with Google Generative AI for smart roadmaps and interactive learning assistants.
 
-**Use your preferred IDE**
+### 📈 Advanced Data Visualization
+- **Performance Analytics**: Real-time charts for student enrollment, activity levels, and course progress using Recharts.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 📁 Data Management
+- **Bulk Import/Export**: Support for CSV and Excel (XLSX) processing for student data.
+- **Persistence**: Robust local storage synchronization for MVP state management.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## 🛠️ Tech Stack
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- **Frontend**: React 18 (Hooks, Context API)
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS + `tailwindcss-animate`
+- **UI Components**: Shadcn/UI (Radix UI)
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+- **Forms**: React Hook Form + Zod
+- **Data Fetching**: TanStack Query (React Query)
+- **Charts**: Recharts
+- **Import/Export**: PapaParse & XLSX
+- **Testing**: Vitest & Playwright
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🚀 Getting Started
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+### Prerequisites
+- Node.js (v18+)
+- Bun (Optional, recommended for performance)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd PathFindr-MVP
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   # or if using bun
+   bun install
+   ```
+
+3. **Set up Environment Variables**
+   Create a `.env` file in the root directory:
+   ```env
+   VITE_GEMINI_API_KEY=your_api_key_here
+   ```
+
+4. **Run the development server**
+   ```bash
+   npm run dev
+   # or
+   bun run dev
+   ```
+
+5. **Build for production**
+   ```bash
+   npm run build
+   ```
+
+---
+
+## 📂 Project Structure
+
+```text
+src/
+├── components/     # Reusable UI components (Shadcn + Custom)
+├── context/        # Global state (AppContext, ThemeContext)
+├── hooks/          # Custom React hooks
+├── lib/            # Utility functions and library configurations
+├── pages/          # Application routes (Admin, Institute, Student)
+├── types/          # TypeScript definitions and schemas
+└── utils/          # Helper functions
 ```
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🧪 Testing
 
-**Use GitHub Codespaces**
+The project includes both unit and end-to-end tests:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- **Unit/Integration**: `npm run test` (Vitest)
+- **E2E**: `npx playwright test`
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## 🎨 Design Philosophy
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+PathFindr follows a **Glassmorphic** and **High-Contrast** design language, ensuring that the interface feels premium and modern. Every interaction is enhanced with subtle micro-animations using Framer Motion to provide a fluid user experience.
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+## 📄 License
 
-## Can I connect a custom domain to my Lovable project?
+This project is licensed under the MIT License.
 
-Yes, you can!
+---
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Developed with ❤️ for the future of education.
